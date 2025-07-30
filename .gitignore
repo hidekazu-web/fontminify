@@ -1,0 +1,85 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+build/
+dist/
+out/
+
+# Development files
+debug-electron.js
+simple-electron.js
+test-electron.js
+
+# Test results
+test-results/
+coverage/
+*.lcov
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+.fleet/
+*.swp
+*.swo
+*~
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Logs
+logs/
+*.log
+
+# Screenshots and images (except icons)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.webp
+!assets/**/*.png
+!assets/**/*.jpg
+!assets/**/*.jpeg
+!assets/**/*.gif
+!assets/**/*.bmp
+!assets/**/*.tiff
+!assets/**/*.webp
+
+# macOS packaging
+*.dmg
+*.pkg
+*.zip
+
+# Code signing
+codesign.log
+signing/
+
+# Auto-generated type definitions (if not needed)
+# @types/subset-font.d.ts
+
+# Electron packaging
+electron-builder.log
