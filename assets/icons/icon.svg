@@ -1,0 +1,19 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="#4F46E5" stroke="#3730A3" stroke-width="8"/>
+  
+  <!-- Font symbol "Aa" -->
+  <text x="256" y="320" font-family="system-ui, -apple-system" font-size="180" font-weight="bold" text-anchor="middle" fill="white">
+    Aa
+  </text>
+  
+  <!-- Optimization arrows -->
+  <path d="M120 180 L140 160 L120 140" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M392 180 L372 160 L392 140" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  
+  <!-- Speed lines -->
+  <path d="M80 200 L160 200" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+  <path d="M352 200 L432 200" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+  <path d="M90 220 L150 220" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  <path d="M362 220 L422 220" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+</svg>

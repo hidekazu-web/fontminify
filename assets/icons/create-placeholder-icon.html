@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FontMinify アイコン生成</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; }
+        canvas { border: 1px solid #ccc; margin: 20px 0; }
+        .controls { margin: 20px 0; }
+        button { padding: 10px 20px; margin: 5px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #5a67d8; }
+    </style>
+</head>
+<body>
+    <h1>FontMinify アイコン生成ツール</h1>
+    <p>512x512のプレースホルダーアイコンを生成します。</p>
+    
+    <div class="controls">
+        <button onclick="generateIcon(512)">512x512 アイコン生成</button>
+        <button onclick="generateIcon(256)">256x256 アイコン生成</button>
+        <button onclick="generateIcon(128)">128x128 アイコン生成</button>
+        <button onclick="generateIcon(64)">64x64 アイコン生成</button>
+        <button onclick="generateIcon(32)">32x32 アイコン生成</button>
+        <button onclick="generateIcon(16)">16x16 アイコン生成</button>
+    </div>
+    
+    <canvas id="iconCanvas" width="512" height="512"></canvas>
+    
+    <div class="controls">
+        <button onclick="downloadIcon()">ダウンロード</button>
+    </div>
+
+    <script>
+        let currentSize = 512;
+        
+        function generateIcon(size) {
+            currentSize = size;
+            const canvas = document.getElementById('iconCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // キャンバスサイズ調整
+            canvas.width = size;
+            canvas.height = size;
+            
+            // 背景グラデーション
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            
+            // 背景円
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2 - 20, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // 文字「あ」のシンプル表現
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.3}px -apple-system, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('あ', size/2 - size * 0.1, size/2 - size * 0.05);
+            
+            // 最適化矢印
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.beginPath();
+            const arrowX = size/2 + size * 0.15;
+            const arrowY = size/2 - size * 0.1;
+            const arrowSize = size * 0.08;
+            
+            // 下向き矢印
+            ctx.moveTo(arrowX - arrowSize, arrowY - arrowSize);
+            ctx.lineTo(arrowX + arrowSize, arrowY - arrowSize);
+            ctx.lineTo(arrowX + arrowSize, arrowY);
+            ctx.lineTo(arrowX + arrowSize * 1.5, arrowY);
+            ctx.lineTo(arrowX, arrowY + arrowSize * 1.5);
+            ctx.lineTo(arrowX - arrowSize * 1.5, arrowY);
+            ctx.lineTo(arrowX - arrowSize, arrowY);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 小さい点（サイズ減少表現）
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.beginPath();
+            ctx.arc(arrowX, arrowY + arrowSize * 2.5, size * 0.01, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            console.log(`${size}x${size} アイコンを生成しました`);
+        }
+        
+        function downloadIcon() {
+            const canvas = document.getElementById('iconCanvas');
+            const link = document.createElement('a');
+            link.download = `icon-${currentSize}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // 初期アイコン生成
+        generateIcon(512);
+    </script>
+</body>
+</html>

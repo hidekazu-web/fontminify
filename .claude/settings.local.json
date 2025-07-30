@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:n8n.io)",
+      "Bash(npm install:*)",
+      "Bash(claude mcp add:*)",
+      "Bash(claude mcp:*)",
+      "Bash(npx n8n-mcp-server:*)",
+      "Bash(npx @leonardsellem/n8n-mcp-server:*)",
+      "Bash(ls:*)",
+      "Bash(claude config list)",
+      "Bash(find:*)"
+    ],
+    "deny": []
+  }
+}

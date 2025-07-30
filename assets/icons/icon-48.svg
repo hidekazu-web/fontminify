@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="primaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <filter id="dropshadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0.384" stdDeviation="0.768" flood-color="#000000" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  
+  <!-- 背景円 -->
+  <circle cx="24" cy="24" r="22.08" fill="url(#primaryGradient)" filter="url(#dropshadow)"/>
+  
+  <!-- メインコンテンツ -->
+  <g transform="translate(24, 24)">
+    <!-- フォント文字「あ」のシンプル化 -->
+    <text x="-3.84" y="3.84" 
+          font-family="SF Pro Display, -apple-system, sans-serif" 
+          font-size="12" 
+          font-weight="600" 
+          fill="white" 
+          text-anchor="middle" 
+          dominant-baseline="middle">あ</text>
+    
+    <!-- 最適化矢印 -->
+    <g transform="translate(7.199999999999999, -3.84)">
+      <path d="M-1.44,-1.92 L1.44,-1.92 L1.44,-0.96 L2.4000000000000004,0 L0,2.4000000000000004 L-2.4000000000000004,0 L-1.44,-0.96 Z" 
+            fill="white" opacity="0.8"/>
+      <circle cx="0" cy="3.3600000000000003" r="0.28800000000000003" fill="white" opacity="0.6"/>
+      <circle cx="0" cy="4.32" r="0.192" fill="white" opacity="0.4"/>
+    </g>
+  </g>
+</svg>
