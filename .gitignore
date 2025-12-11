@@ -16,6 +16,8 @@ test-electron.js
 
 # Test results
 test-results/
+test-output/
+test-downloads/
 coverage/
 *.lcov
 
@@ -83,3 +85,7 @@ signing/
 
 # Electron packaging
 electron-builder.log
+electron.log
+
+# Old type definitions (migrated to types/)
+@types/

@@ -35,71 +35,71 @@ print_error() {
 case "${1:-help}" in
     "start")
         print_info "Starting development environment..."
-        docker-compose up -d fontminify-dev
+        docker-compose -f docker/docker-compose.yml up -d fontminify-dev
         print_success "Development container started"
         print_info "Container: fontminify-dev"
         print_info "VNC: localhost:5900 (for GUI access)"
         ;;
     "stop")
         print_info "Stopping development environment..."
-        docker-compose down
+        docker-compose -f docker/docker-compose.yml down
         print_success "Development container stopped"
         ;;
     "restart")
         print_info "Restarting development environment..."
-        docker-compose restart fontminify-dev
+        docker-compose -f docker/docker-compose.yml restart fontminify-dev
         print_success "Development container restarted"
         ;;
     "logs")
         print_info "Showing container logs..."
-        docker-compose logs -f fontminify-dev
+        docker-compose -f docker/docker-compose.yml logs -f fontminify-dev
         ;;
     "shell"|"bash")
         print_info "Opening shell in development container..."
-        docker-compose exec fontminify-dev /bin/bash
+        docker-compose -f docker/docker-compose.yml exec fontminify-dev /bin/bash
         ;;
     "install")
         print_info "Installing dependencies in container..."
-        docker-compose exec fontminify-dev npm install
+        docker-compose -f docker/docker-compose.yml exec fontminify-dev npm install
         print_success "Dependencies installed"
         ;;
     "build-app")
         print_info "Building application in container..."
-        docker-compose exec fontminify-dev npm run build
+        docker-compose -f docker/docker-compose.yml exec fontminify-dev npm run build
         print_success "Application built"
         ;;
     "test-unit")
         print_info "Running unit tests in container..."
-        docker-compose exec fontminify-dev npm test
+        docker-compose -f docker/docker-compose.yml exec fontminify-dev npm test
         ;;
     "test-e2e")
         print_info "Running E2E tests in container..."
-        docker-compose exec fontminify-dev npm run test:e2e
+        docker-compose -f docker/docker-compose.yml exec fontminify-dev npm run test:e2e
         ;;
     "lint")
         print_info "Running linter in container..."
-        docker-compose exec fontminify-dev npm run lint
+        docker-compose -f docker/docker-compose.yml exec fontminify-dev npm run lint
         ;;
     "typecheck")
         print_info "Running type check in container..."
-        docker-compose exec fontminify-dev npm run typecheck
+        docker-compose -f docker/docker-compose.yml exec fontminify-dev npm run typecheck
         ;;
     "clean")
         print_info "Cleaning up development environment..."
-        docker-compose down --volumes --remove-orphans
+        docker-compose -f docker/docker-compose.yml down --volumes --remove-orphans
         docker system prune -f
         print_success "Environment cleaned"
         ;;
     "rebuild")
         print_info "Rebuilding development environment..."
-        docker-compose down --volumes
-        docker-compose build --no-cache fontminify-dev
-        docker-compose up -d fontminify-dev
+        docker-compose -f docker/docker-compose.yml down --volumes
+        docker-compose -f docker/docker-compose.yml build --no-cache fontminify-dev
+        docker-compose -f docker/docker-compose.yml up -d fontminify-dev
         print_success "Environment rebuilt"
         ;;
     "status")
         print_info "Checking container status..."
-        docker-compose ps
+        docker-compose -f docker/docker-compose.yml ps
         ;;
     "help")
         echo "FontMinify Docker Development Commands"

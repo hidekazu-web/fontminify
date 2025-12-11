@@ -97,7 +97,7 @@ Docker環境では以下のディレクトリがマウントされます:
 
 ```
 /app/              # アプリケーションルート
-/app/test-fonts/   # テスト用フォントファイル
+/app/test-fonts/   # テスト用フォントファイル（tests/fixtures/fontsからマウント）
 /app/test-output/  # 出力ファイル
 ```
 
@@ -176,7 +176,7 @@ ps aux | grep Xvfb
 - コンテナは非rootユーザー（fontminify）で実行されます
 - ホストファイルシステムへの書き込みは制限されています
 - GUI操作が必要な場合はVNC接続を使用してください
-- テスト用フォントファイルは `test-fonts/` ディレクトリに配置してください
+- テスト用フォントファイルは `tests/fixtures/fonts/` ディレクトリに配置してください
 
 ## 🔒 セキュリティ
 

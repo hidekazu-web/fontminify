@@ -43,21 +43,21 @@ check_docker() {
 # Create test directories
 setup_test_dirs() {
     print_status "Setting up test directories..."
-    mkdir -p test-fonts test-output
+    mkdir -p tests/fixtures/fonts test-output
     print_success "Test directories created"
 }
 
 # Build Docker image
 build_image() {
     print_status "Building FontMinify Docker image..."
-    docker-compose build fontminify-dev
+    docker-compose -f docker/docker-compose.yml build fontminify-dev
     print_success "Docker image built successfully"
 }
 
 # Run unit tests
 run_unit_tests() {
     print_status "Running unit tests in Docker container..."
-    docker-compose run --rm fontminify-test
+    docker-compose -f docker/docker-compose.yml run --rm fontminify-test
     local status=$?
     if [ $status -eq 0 ]; then
         print_success "Unit tests passed"
@@ -70,7 +70,7 @@ run_unit_tests() {
 # Run E2E tests
 run_e2e_tests() {
     print_status "Running E2E tests in Docker container..."
-    docker-compose run --rm fontminify-e2e
+    docker-compose -f docker/docker-compose.yml run --rm fontminify-e2e
     local status=$?
     if [ $status -eq 0 ]; then
         print_success "E2E tests passed"
@@ -85,13 +85,13 @@ start_dev() {
     print_status "Starting development environment..."
     print_warning "GUI applications will run in headless mode"
     print_warning "Use VNC viewer on localhost:5900 to see the GUI (no password)"
-    docker-compose up fontminify-dev
+    docker-compose -f docker/docker-compose.yml up fontminify-dev
 }
 
 # Clean up Docker resources
 cleanup() {
     print_status "Cleaning up Docker resources..."
-    docker-compose down --volumes --remove-orphans
+    docker-compose -f docker/docker-compose.yml down --volumes --remove-orphans
     print_success "Cleanup completed"
 }
 
@@ -121,7 +121,7 @@ show_usage() {
 # Open interactive shell
 open_shell() {
     print_status "Opening interactive shell in Docker container..."
-    docker-compose run --rm fontminify-dev /bin/bash
+    docker-compose -f docker/docker-compose.yml run --rm fontminify-dev /bin/bash
 }
 
 # Main execution

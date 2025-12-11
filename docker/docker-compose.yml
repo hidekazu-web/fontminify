@@ -2,16 +2,18 @@
 
 services:
   fontminify-dev:
-    build: .
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: fontminify-dev
     volumes:
       # Mount source code for development
-      - .:/app
+      - ..:/app
       - /app/node_modules
       # Mount test fonts directory
-      - ./test-fonts:/app/test-fonts
+      - ../tests/fixtures/fonts:/app/test-fonts
       # Mount output directory
-      - ./test-output:/app/test-output
+      - ../test-output:/app/test-output
     environment:
       - NODE_ENV=development
       - DISPLAY=:99
@@ -32,13 +34,15 @@ services:
 
   # Test runner service
   fontminify-test:
-    build: .
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: fontminify-test
     volumes:
-      - .:/app
+      - ..:/app
       - /app/node_modules
-      - ./test-fonts:/app/test-fonts
-      - ./test-output:/app/test-output
+      - ../tests/fixtures/fonts:/app/test-fonts
+      - ../test-output:/app/test-output
     environment:
       - NODE_ENV=test
       - DISPLAY=:99
@@ -51,13 +55,15 @@ services:
 
   # E2E test service
   fontminify-e2e:
-    build: .
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: fontminify-e2e
     volumes:
-      - .:/app
+      - ..:/app
       - /app/node_modules
-      - ./test-fonts:/app/test-fonts
-      - ./test-output:/app/test-output
+      - ../tests/fixtures/fonts:/app/test-fonts
+      - ../test-output:/app/test-output
     environment:
       - NODE_ENV=test
       - DISPLAY=:99
