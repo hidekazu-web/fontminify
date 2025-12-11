@@ -24,23 +24,35 @@ export const DEFAULT_SUBSET_OPTIONS = {
   preserveGlyphOrder: true,
 } as const;
 
+/**
+ * IPC通信チャンネル定義
+ * アプリケーション内でのIPC通信に使用するチャンネル名を一元管理
+ */
 export enum IPCChannel {
   // ファイル操作
   SELECT_FILES = 'select-files',
   ANALYZE_FONT = 'analyze-font',
   SUBSET_FONT = 'subset-font',
   SAVE_FILE = 'save-file',
-  
+  SAVE_FILE_DIALOG = 'save-file-dialog',
+  VALIDATE_SAVE_PATH = 'validate-save-path',
+
   // フォント処理
   PROCESS_FONT = 'process-font',
+  COMPRESS_WOFF2 = 'compress-woff2',
+  ESTIMATE_SIZE = 'estimate-size',
+
+  // 処理制御
   CANCEL_PROCESSING = 'cancel-processing',
-  
-  // プログレス更新
+  PROCESSING_CANCELLED = 'processing-cancelled',
+
+  // プログレス・エラー
   PROGRESS_UPDATE = 'progress-update',
-  
+  ERROR = 'error',
+
   // アップデート関連
   CHECK_FOR_UPDATES = 'check-for-updates',
   GET_APP_VERSION = 'get-app-version',
   GET_UPDATE_SETTINGS = 'get-update-settings',
-  UPDATE_SETTINGS = 'update-settings'
+  UPDATE_SETTINGS = 'update-settings',
 }

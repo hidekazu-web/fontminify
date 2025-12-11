@@ -1,6 +1,7 @@
 import React from 'react';
 import { useFontStore } from '../stores/fontStore';
 import ProgressBar from './ProgressBar';
+import { formatFileSize, getPhaseLabel, formatTime } from '../../shared/utils';
 
 const ProgressPanel: React.FC = () => {
   const { progressState, processingJobs, cancelProcessing, isProcessing } = useFontStore();
@@ -8,40 +9,6 @@ const ProgressPanel: React.FC = () => {
   if (!isProcessing && processingJobs.length === 0) {
     return null;
   }
-
-  const getPhaseLabel = (phase: string) => {
-    switch (phase) {
-      case 'analyzing':
-        return 'フォント解析中';
-      case 'subsetting':
-        return 'サブセット化中';
-      case 'optimizing':
-        return '最適化中';
-      case 'compressing':
-        return '圧縮中';
-      case 'complete':
-        return '完了';
-      default:
-        return '処理中';
-    }
-  };
-
-  const formatTime = (seconds: number) => {
-    if (seconds < 60) {
-      return `${seconds}秒`;
-    }
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}分${remainingSeconds}秒`;
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
-  };
 
   return (
     <div className="flex-1 p-6 bg-gray-50">

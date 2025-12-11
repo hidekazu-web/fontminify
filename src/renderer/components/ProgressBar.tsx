@@ -1,5 +1,6 @@
 import React from 'react';
 import { ProgressState } from '../../shared/types';
+import { getPhaseLabel, formatTime } from '../../shared/utils';
 
 interface ProgressBarProps {
   progress: ProgressState;
@@ -12,34 +13,6 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   onCancel,
   className = '',
 }) => {
-  const getPhaseLabel = (phase: ProgressState['phase']): string => {
-    switch (phase) {
-      case 'idle':
-        return '待機中';
-      case 'analyzing':
-        return 'フォント解析中';
-      case 'subsetting':
-        return 'サブセット化中';
-      case 'optimizing':
-        return '最適化中';
-      case 'compressing':
-        return 'WOFF2圧縮中';
-      case 'complete':
-        return '完了';
-      default:
-        return '処理中';
-    }
-  };
-
-  const formatTime = (seconds: number): string => {
-    if (seconds < 60) {
-      return `${Math.ceil(seconds)}秒`;
-    }
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.ceil(seconds % 60);
-    return `${minutes}分${remainingSeconds}秒`;
-  };
-
   const isProcessing = progress.phase !== 'idle' && progress.phase !== 'complete';
 
   return (

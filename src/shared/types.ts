@@ -1,17 +1,9 @@
-export enum IPCChannel {
-  SELECT_FILES = 'select-files',
-  ANALYZE_FONT = 'analyze-font',
-  SUBSET_FONT = 'subset-font',
-  COMPRESS_WOFF2 = 'compress-woff2',
-  ESTIMATE_SIZE = 'estimate-size',
-  SAVE_FILE = 'save-file',
-  SAVE_FILE_DIALOG = 'save-file-dialog',
-  VALIDATE_SAVE_PATH = 'validate-save-path',
-  PROGRESS_UPDATE = 'progress-update',
-  CANCEL_PROCESSING = 'cancel-processing',
-  PROCESSING_CANCELLED = 'processing-cancelled',
-  ERROR = 'error',
-}
+// IPCChannel は src/shared/constants.ts で定義。ここからre-export
+export { IPCChannel } from './constants';
+
+// ErrorType は src/shared/errors.ts で定義
+import { ErrorType } from './errors';
+export { ErrorType };
 
 export interface FontAnalysis {
   fileName: string;
@@ -111,16 +103,6 @@ export interface ProcessError {
   message: string;
   details?: string;
   recoverable: boolean;
-}
-
-export enum ErrorType {
-  FILE_NOT_FOUND = 'FILE_NOT_FOUND',
-  INVALID_FORMAT = 'INVALID_FORMAT',
-  CORRUPT_FONT = 'CORRUPT_FONT',
-  INSUFFICIENT_SPACE = 'INSUFFICIENT_SPACE',
-  PERMISSION_DENIED = 'PERMISSION_DENIED',
-  SUBSET_FAILED = 'SUBSET_FAILED',
-  COMPRESSION_FAILED = 'COMPRESSION_FAILED',
 }
 
 export interface CompressionStats {

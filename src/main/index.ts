@@ -1,6 +1,6 @@
 import { app, BrowserWindow, shell, Menu } from 'electron';
 import { join } from 'path';
-import { setupIPC } from './ipc/handlers';
+import { registerIPCHandlers } from './ipc/handlers';
 import { createApplicationMenu } from './menu/appMenu';
 
 function createWindow(): void {
@@ -41,7 +41,7 @@ app.whenReady().then(() => {
   const menu = createApplicationMenu();
   Menu.setApplicationMenu(menu);
 
-  setupIPC();
+  registerIPCHandlers();
 
   createWindow();
 

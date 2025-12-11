@@ -3,25 +3,25 @@ import { useFontStore } from '../stores/fontStore';
 import { validateFileList } from '../../shared/validation';
 
 const FileDropZone: React.FC = () => {
-  const [isDragOver, setIsDragOver] = useState(false);
+  const [localDragOver, setLocalDragOver] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const { addFiles, dragOverState, setDragOverState } = useFontStore();
+  const { addFiles, isDragOver, setDragOverState } = useFontStore();
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragOver(true);
+    setLocalDragOver(true);
     setDragOverState(true);
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragOver(false);
+    setLocalDragOver(false);
     setDragOverState(false);
   };
 
   const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragOver(false);
+    setLocalDragOver(false);
     setDragOverState(false);
     setValidationErrors([]);
 
@@ -108,7 +108,7 @@ const FileDropZone: React.FC = () => {
       <div 
         data-testid="file-drop-zone"
         className={`w-full max-w-lg h-72 border-3 border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex items-center justify-center cursor-pointer transition-all duration-300 bg-white dark:bg-gray-800 ${
-          isDragOver ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' : 'hover:border-primary-500 hover:bg-gray-50 dark:hover:bg-gray-700'
+          localDragOver ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' : 'hover:border-primary-500 hover:bg-gray-50 dark:hover:bg-gray-700'
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}

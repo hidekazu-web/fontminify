@@ -1,4 +1,5 @@
 import { SUPPORTED_FONT_FORMATS, MAX_FILE_SIZE } from './constants';
+import { formatFileSize } from './utils';
 
 export interface ValidationResult {
   isValid: boolean;
@@ -146,13 +147,6 @@ function validateFontFormat(format: string, fileName: string): ValidationResult 
     errors,
     warnings,
   };
-}
-
-function formatFileSize(bytes: number): string {
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  if (bytes === 0) return '0 B';
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
 }
 
 // バッチ処理用のヘルパー関数

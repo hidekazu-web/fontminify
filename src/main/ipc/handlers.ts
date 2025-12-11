@@ -8,7 +8,11 @@ import { initializeUpdateHandlers } from './updateHandlers';
 // キャンセル状態を管理
 let isCancelled = false;
 
-export function setupIPC(): void {
+/**
+ * IPCハンドラーを登録
+ * メインプロセス起動時に一度だけ呼び出す
+ */
+export function registerIPCHandlers(): void {
   // アップデート関連IPCハンドラーを初期化
   initializeUpdateHandlers();
   // ファイル選択ダイアログ
@@ -197,3 +201,8 @@ export function getIsCancelled(): boolean {
 export function resetCancelled(): void {
   isCancelled = false;
 }
+
+/**
+ * @deprecated registerIPCHandlers を使用してください
+ */
+export const setupIPC = registerIPCHandlers;

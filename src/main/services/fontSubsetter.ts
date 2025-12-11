@@ -1,159 +1,158 @@
-import { SubsetOptions, ProgressState } from '../../shared/types';
+import { SubsetOptions, ProgressState, ErrorType } from '../../shared/types';
 import { getCharacterSetFromPreset } from '../../shared/presets';
 import { readFileSync } from 'fs';
-const subsetFontLib = require('subset-font');
+import subsetFontLib from 'subset-font';
 
-export async function subsetFont(
-  options: SubsetOptions,
-  progressCallback: (progress: ProgressState) => void
+/**
+ * プログレスコールバックの型
+ */
+type ProgressCallback = (progress: ProgressState) => void;
+
+/**
+ * プログレス状態を更新するヘルパー関数
+ */
+function updateProgress(
+  callback: ProgressCallback,
+  phase: ProgressState['phase'],
+  progress: number,
+  inputPath: string,
+  estimatedTime: number,
+  errors: ProgressState['errors'] = []
+): void {
+  callback({
+    phase,
+    progress,
+    currentFile: inputPath,
+    totalFiles: 1,
+    processedFiles: phase === 'complete' && errors.length === 0 ? 1 : 0,
+    estimatedTime,
+    errors,
+  });
+}
+
+/**
+ * 文字セットを決定
+ */
+function determineCharacterSet(options: SubsetOptions): string {
+  if (options.customCharacters) {
+    return options.customCharacters;
+  }
+  if (options.preset) {
+    return getCharacterSetFromPreset(options.preset);
+  }
+  throw new Error('文字セットまたはプリセットが指定されていません');
+}
+
+/**
+ * フォントをサブセット化
+ */
+async function performSubset(
+  fontBuffer: Buffer,
+  characterSet: string,
+  options: SubsetOptions
+): Promise<Buffer> {
+  console.log('サブセット化開始:', {
+    text: characterSet.slice(0, 50) + (characterSet.length > 50 ? '...' : ''),
+    textLength: characterSet.length,
+    targetFormat: options.outputFormat,
+    bufferSize: fontBuffer.length,
+  });
+
+  try {
+    const subsetFontBuffer = await subsetFontLib(fontBuffer, characterSet, {
+      targetFormat: options.outputFormat || 'woff2',
+      preserveHinting: !options.removeHinting,
+      desubroutinize: options.desubroutinize || false,
+    });
+
+    console.log('サブセット化完了:', subsetFontBuffer.length, 'bytes');
+    return subsetFontBuffer;
+  } catch (subsetError: any) {
+    console.error('サブセット化エラー:', subsetError);
+    throw new Error(`フォントサブセット化に失敗しました: ${subsetError.message || 'unknown error'}`);
+  }
+}
+
+/**
+ * WOFF2形式に圧縮
+ */
+async function compressToWoff2Format(
+  fontBuffer: Buffer,
+  characterSet: string
 ): Promise<Buffer> {
   try {
-    // プログレス更新: 解析開始
-    progressCallback({
-      phase: 'analyzing',
-      progress: 10,
-      currentFile: options.inputPath,
-      totalFiles: 1,
-      processedFiles: 0,
-      estimatedTime: 15,
-      errors: [],
-    });
+    return await subsetFontLib(fontBuffer, { text: characterSet, targetFormat: 'woff2' });
+  } catch (woff2Error) {
+    console.warn('WOFF2 compression failed, using original format:', woff2Error);
+    throw woff2Error;
+  }
+}
+
+/**
+ * フォントをサブセット化するメイン関数
+ */
+export async function subsetFont(
+  options: SubsetOptions,
+  progressCallback: ProgressCallback
+): Promise<Buffer> {
+  try {
+    // フェーズ1: 解析開始
+    updateProgress(progressCallback, 'analyzing', 10, options.inputPath, 15);
 
     // フォントファイルを読み込み
     const fontBuffer = readFileSync(options.inputPath);
-    
-    // 文字セットを決定
-    let characterSet: string;
-    if (options.customCharacters) {
-      characterSet = options.customCharacters;
-    } else if (options.preset) {
-      characterSet = getCharacterSetFromPreset(options.preset as any);
-    } else {
-      throw new Error('文字セットまたはプリセットが指定されていません');
-    }
 
-    // プログレス更新: サブセット化開始
-    progressCallback({
-      phase: 'subsetting',
-      progress: 30,
-      currentFile: options.inputPath,
-      totalFiles: 1,
-      processedFiles: 0,
-      estimatedTime: 10,
-      errors: [],
-    });
+    // フェーズ2: 文字セット決定
+    const characterSet = determineCharacterSet(options);
 
-    // subset-fontを使用してサブセット化
-    const subsetOptions = {
-      targetFormat: options.outputFormat || 'woff2',
-      text: characterSet,
-      preserveNameIds: [1, 2], // フォント名を保持
-      removeHinting: false,
-      desubroutinize: false,
-    };
+    // フェーズ3: サブセット化
+    updateProgress(progressCallback, 'subsetting', 30, options.inputPath, 10);
+    const subsetFontBuffer = await performSubset(fontBuffer, characterSet, options);
 
-    let subsetBuffer: Buffer;
-    try {
-      console.log('サブセット化開始:', {
-        text: characterSet.slice(0, 50) + (characterSet.length > 50 ? '...' : ''),
-        textLength: characterSet.length,
-        targetFormat: options.outputFormat,
-        bufferSize: fontBuffer.length
-      });
-      
-      // subset-fontの正しい使用方法
-      subsetBuffer = await subsetFontLib(fontBuffer, characterSet, {
-        targetFormat: options.outputFormat || 'woff2',
-        preserveHinting: !options.removeHinting,
-        desubroutinize: options.desubroutinize || false
-      });
-      
-      console.log('サブセット化完了:', subsetBuffer.length, 'bytes');
-    } catch (subsetError: any) {
-      console.error('サブセット化エラー:', subsetError);
-      throw new Error(`フォントサブセット化に失敗しました: ${subsetError.message || 'unknown error'}`);
-    }
+    // フェーズ4: 最適化
+    updateProgress(progressCallback, 'optimizing', 80, options.inputPath, 3);
 
-    // プログレス更新: 最適化
-    progressCallback({
-      phase: 'optimizing',
-      progress: 80,
-      currentFile: options.inputPath,
-      totalFiles: 1,
-      processedFiles: 0,
-      estimatedTime: 3,
-      errors: [],
-    });
-
-    // WOFF2圧縮処理
-    let finalBuffer = subsetBuffer;
+    // フェーズ5: WOFF2圧縮（必要な場合）
+    let outputBuffer = subsetFontBuffer;
     if (options.enableWoff2Compression && options.outputFormat !== 'woff2') {
-      progressCallback({
-        phase: 'compressing',
-        progress: 85,
-        currentFile: options.inputPath,
-        totalFiles: 1,
-        processedFiles: 0,
-        estimatedTime: 2,
-        errors: [],
-      });
+      updateProgress(progressCallback, 'compressing', 85, options.inputPath, 2);
 
-      // WOFF2形式に再変換（最適化オプション付き）
-      const woff2Options = {
-        targetFormat: 'woff2',
-        text: characterSet,
-        preserveNameIds: [1, 2],
-        removeHinting: options.removeHinting || false,
-        desubroutinize: options.desubroutinize || false,
-        // WOFF2特有の最適化オプション
-        compressionLevel: 6, // 0-10 (高いほど圧縮率が高い)
-        transformGlyf: true,  // グリフテーブル変換で圧縮率向上
-      };
-      
       try {
-        finalBuffer = await subsetFontLib(fontBuffer, { text: characterSet, targetFormat: 'woff2' });
-      } catch (woff2Error) {
-        console.warn('WOFF2 compression failed, using original format:', woff2Error);
+        outputBuffer = await compressToWoff2Format(fontBuffer, characterSet);
+      } catch {
         // WOFF2圧縮に失敗した場合は元の形式を使用
-        finalBuffer = subsetBuffer;
+        outputBuffer = subsetFontBuffer;
       }
     }
 
-    // プログレス更新: 完了
-    progressCallback({
-      phase: 'complete',
-      progress: 100,
-      currentFile: options.inputPath,
-      totalFiles: 1,
-      processedFiles: 1,
-      estimatedTime: 0,
-      errors: [],
-    });
+    // フェーズ6: 完了
+    updateProgress(progressCallback, 'complete', 100, options.inputPath, 0);
 
-    return finalBuffer;
-
+    return outputBuffer;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : '不明なエラーが発生しました';
-    
-    progressCallback({
-      phase: 'complete',
-      progress: 0,
-      currentFile: options.inputPath,
-      totalFiles: 1,
-      processedFiles: 0,
-      estimatedTime: 0,
-      errors: [{
-        type: 'SUBSET_FAILED' as any,
+
+    updateProgress(
+      progressCallback,
+      'complete',
+      0,
+      options.inputPath,
+      0,
+      [{
+        type: ErrorType.SUBSET_FAILED,
         message: errorMessage,
         details: options.inputPath,
         recoverable: true,
-      }],
-    });
+      }]
+    );
 
     throw new Error(`フォントサブセット化に失敗しました: ${errorMessage}`);
   }
 }
 
+/**
+ * サブセット後のファイルサイズを推定
+ */
 export async function estimateSubsetSize(
   filePath: string,
   characterSet: string,
@@ -162,25 +161,25 @@ export async function estimateSubsetSize(
   try {
     const fontBuffer = readFileSync(filePath);
     const originalSize = fontBuffer.length;
-    
+
     // 簡易的なサイズ推定（実際の文字数比率ベース）
     const fontkit = await import('fontkit');
-    const fontOrCollection = fontkit.openSync(fontBuffer as any);
+    const fontOrCollection = fontkit.openSync(fontBuffer);
     const font = 'fonts' in fontOrCollection ? fontOrCollection.fonts[0] : fontOrCollection;
-    const totalGlyphs = (font as any).numGlyphs;
+    const totalGlyphs = font.numGlyphs;
     const usedGlyphs = new Set(characterSet).size;
-    
+
     // 概算での圧縮率計算
     const glyphRatio = usedGlyphs / totalGlyphs;
     let compressionFactor = 0.8; // 基本的なサブセット圧縮
-    
+
     if (enableWoff2Compression) {
       compressionFactor = 0.4; // WOFF2の優秀な圧縮率
     }
-    
+
     const estimatedSize = Math.round(originalSize * glyphRatio * compressionFactor);
     const compressionRatio = ((originalSize - estimatedSize) / originalSize) * 100;
-    
+
     return {
       originalSize,
       estimatedSize,
@@ -191,6 +190,9 @@ export async function estimateSubsetSize(
   }
 }
 
+/**
+ * WOFF2形式に圧縮（単独関数）
+ */
 export async function compressToWoff2(
   fontBuffer: Buffer,
   options: {
@@ -201,16 +203,6 @@ export async function compressToWoff2(
   } = {}
 ): Promise<Buffer> {
   try {
-    // WOFF2圧縮専用オプション
-    const woff2Options = {
-      targetFormat: 'woff2',
-      compressionLevel: options.compressionLevel || 6,
-      transformGlyf: options.transformGlyf !== false,
-      removeHinting: options.removeHinting || false,
-      desubroutinize: options.desubroutinize || false,
-      preserveNameIds: [1, 2], // フォント名を保持
-    };
-
     const compressedBuffer = await subsetFontLib(fontBuffer, { targetFormat: 'woff2' });
     return compressedBuffer;
   } catch (error) {
@@ -218,6 +210,9 @@ export async function compressToWoff2(
   }
 }
 
+/**
+ * 圧縮統計を計算
+ */
 export function calculateCompressionStats(
   originalSize: number,
   compressedSize: number

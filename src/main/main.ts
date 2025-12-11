@@ -3,7 +3,7 @@ import { join } from 'path';
 import { initializeSecurity, configureBrowserWindowSecurity } from './security';
 import { initializeAutoUpdater } from './autoUpdater';
 import { startMemoryMonitoring } from './services/memoryMonitor';
-import { setupIPC } from './ipc/handlers';
+import { registerIPCHandlers } from './ipc/handlers';
 
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -109,8 +109,8 @@ app.whenReady().then(() => {
   // セキュリティ設定の初期化
   initializeSecurity();
   
-  // IPC通信の初期化
-  setupIPC();
+  // IPCハンドラーの登録
+  registerIPCHandlers();
   
   // メインウィンドウの作成
   createWindow();
