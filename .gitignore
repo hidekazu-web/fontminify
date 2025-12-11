@@ -89,3 +89,4 @@ electron.log
 
 # Old type definitions (migrated to types/)
 @types/
+types/subset-font-old.d.ts
