@@ -58,7 +58,8 @@ export function createSelectors(get: GetState): FontStoreSelectors {
      * 後方互換性のためのエイリアス
      */
     get dragOverState() {
-      return get().isDragOver;
+      const state = get();
+      return state?.isDragOver ?? false;
     },
   };
 }

@@ -1,8 +1,12 @@
 import { session, BrowserWindow } from 'electron';
 
+const isDev = process.env.NODE_ENV === 'development';
+
 // セキュリティヘッダー定義
 const SECURITY_HEADERS = {
-  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline';",
+  'Content-Security-Policy': isDev
+    ? "default-src 'self' http://localhost:* ws://localhost:*; script-src 'self' 'unsafe-eval' 'unsafe-inline' http://localhost:*; style-src 'self' 'unsafe-inline'; connect-src 'self' http://localhost:* ws://localhost:*;"
+    : "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline';",
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
   'X-XSS-Protection': '1; mode=block',
@@ -13,7 +17,6 @@ const SECURITY_HEADERS = {
  * セキュリティヘッダーの設定
  */
 export function configureSecurityHeaders(): void {
-  const isDev = process.env.NODE_ENV === 'development';
   
   const filter = {
     urls: ['*://*/*']
