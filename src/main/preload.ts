@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, webUtils } from 'electron';
 import { IPCChannel } from '../shared/types';
 
 console.log('Preload script is running...');
@@ -7,6 +7,9 @@ console.log('ipcRenderer available:', !!ipcRenderer);
 
 // レンダラープロセスで使用可能なAPIを公開
 contextBridge.exposeInMainWorld('electronAPI', {
+  // ファイルパス取得（ドラッグ&ドロップ用）
+  getPathForFile: (file: File) => webUtils.getPathForFile(file),
+
   // ファイル選択
   selectFiles: () => ipcRenderer.invoke(IPCChannel.SELECT_FILES),
   
@@ -68,7 +71,7 @@ try {
     preloadLoaded: true,
     timestamp: Date.now(),
     availableFunctions: [
-      'selectFiles', 'analyzeFont', 'subsetFont', 'compressWoff2',
+      'getPathForFile', 'selectFiles', 'analyzeFont', 'subsetFont', 'compressWoff2',
       'estimateSize', 'showSaveDialog', 'validateSavePath', 'saveFile',
       'cancelProcessing', 'onProgressUpdate', 'onError', 'onProcessingCancelled',
       'removeAllListeners'

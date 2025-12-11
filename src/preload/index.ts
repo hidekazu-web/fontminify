@@ -1,8 +1,9 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, webUtils } from 'electron';
 import { IPCChannel, SubsetOptions, FontAnalysis, ProgressState, CompressionStats, Woff2CompressionOptions } from '../shared/types';
 import { exposeSecureApi, initializeSecurityMonitoring } from './security';
 
 export interface ElectronAPI {
+  getPathForFile: (file: File) => string;
   selectFiles: () => Promise<string[]>;
   analyzeFont: (filePath: string) => Promise<FontAnalysis>;
   subsetFont: (options: SubsetOptions) => Promise<Buffer>;
@@ -19,6 +20,7 @@ export interface ElectronAPI {
 }
 
 const electronAPI: ElectronAPI = {
+  getPathForFile: (file: File) => webUtils.getPathForFile(file),
   selectFiles: () => ipcRenderer.invoke(IPCChannel.SELECT_FILES),
   analyzeFont: (filePath: string) => ipcRenderer.invoke(IPCChannel.ANALYZE_FONT, filePath),
   subsetFont: (options: SubsetOptions) => ipcRenderer.invoke(IPCChannel.SUBSET_FONT, options),

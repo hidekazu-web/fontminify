@@ -30,20 +30,28 @@ const FileDropZone: React.FC = () => {
     // ファイルバリデーション
     const validation = validateFileList(files);
     
+    // Electron APIでファイルパスを取得
+    const getFilePath = (file: File): string => {
+      if (window.electronAPI?.getPathForFile) {
+        return window.electronAPI.getPathForFile(file);
+      }
+      return file.name;
+    };
+
     if (validation.invalidCount > 0) {
       const errors = validation.invalid.flatMap(result => result.errors);
       setValidationErrors(errors);
-      
+
       // 部分的に有効なファイルがある場合は追加
       if (validation.validCount > 0) {
-        const validFilePaths = validation.valid.map(result => 
-          (result.file as File).path || (result.file as File).name
+        const validFilePaths = validation.valid.map(result =>
+          getFilePath(result.file as File)
         );
         addFiles(validFilePaths);
       }
     } else if (validation.validCount > 0) {
-      const filePaths = validation.valid.map(result => 
-        (result.file as File).path || (result.file as File).name
+      const filePaths = validation.valid.map(result =>
+        getFilePath(result.file as File)
       );
       addFiles(filePaths);
     }
