@@ -28,17 +28,23 @@
 
 ## 最近の更新
 
+### 2025-12-11 ビルド・UI問題修正
+
+- ✅ ビルド後のアプリ起動問題を修正
+  - Vite出力先を`dist/renderer`に変更
+  - `webUtils.getPathForFile()`でファイルパス取得
+- ✅ ダークモードUI修正
+  - FontInfoPanel/CharacterSetSelector/CharacterSetPanelに`dark:`クラス追加
+- ✅ フォント保存問題修正
+  - IPCハンドラーで`saveFileToPath()`を呼び出すよう修正
+- ✅ 左パネル幅拡大（w-96 → w-[420px]）
+- ✅ macOSインストールガイド（docs/INSTALL.md）追加
+
 ### 2025-12-11 リファクタリング完了
 
 - ✅ `refactor/improvements`ブランチをマージ
-  - ストア分割（state/actions/selectors/index）
-  - `useFontProcessing`カスタムフック追加
-  - 型定義整理（types/フォルダに統合）
-- ✅ `CancellationManager`クラス導入（並行処理対応）
+- ✅ `CancellationManager`クラス導入
 - ✅ プロジェクトルート整理（21→15ファイル）
-  - Docker関連 → docker/
-  - テストフォント → tests/fixtures/fonts/
-  - REQUIREMENTS.md → docs/
 - ✅ 開発環境の起動エラー修正（CSP設定）
 
 ---
