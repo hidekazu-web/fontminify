@@ -42,7 +42,7 @@ const CharacterSetSelector: React.FC<CharacterSetSelectorProps> = ({
     const sizeValue = preset.estimatedSize || preset.characterCount;
     const estimatedSize = sizeValue < 500 ? '小' :
                          sizeValue < 1500 ? '中' : '大';
-    
+
     return {
       ...preset,
       estimatedSize,
@@ -50,92 +50,94 @@ const CharacterSetSelector: React.FC<CharacterSetSelectorProps> = ({
   };
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`space-y-4 ${className}`}>
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">文字セット選択</h3>
-        
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-3">
+          文字セット選択
+        </h3>
+
         {/* モード選択 */}
-        <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-6">
+        <div className="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg mb-4">
           <button
             onClick={() => handleModeChange('preset')}
-            className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
+            className={`flex-1 py-2 px-3 text-sm font-medium rounded-md transition-colors ${
               selectedMode === 'preset'
-                ? 'bg-white text-primary-700 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-white dark:bg-gray-600 text-primary-700 dark:text-primary-400 shadow-sm'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}
           >
-            📋 プリセット
+            プリセット
           </button>
           <button
             onClick={() => handleModeChange('custom')}
-            className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
+            className={`flex-1 py-2 px-3 text-sm font-medium rounded-md transition-colors ${
               selectedMode === 'custom'
-                ? 'bg-white text-primary-700 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-white dark:bg-gray-600 text-primary-700 dark:text-primary-400 shadow-sm'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}
           >
-            ✏️ カスタム
+            カスタム
           </button>
         </div>
 
         {/* プリセット選択 */}
         {selectedMode === 'preset' && (
-          <div className="space-y-3">
-            <p className="text-sm text-gray-600 mb-4">
+          <div className="space-y-2">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
               日本語フォント用に最適化されたプリセットから選択してください。
             </p>
-            
-            <div className="grid gap-3">
+
+            <div className="space-y-2">
               {CHARACTER_PRESETS.map((preset) => {
                 const info = getPresetInfo(preset);
                 const isSelected = selectedPreset === preset.id;
-                
+
                 return (
                   <div
                     key={preset.id}
                     onClick={() => handlePresetChange(preset.id)}
-                    className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
                       isSelected
-                        ? 'border-primary-500 bg-primary-50'
-                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                        ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30'
+                        : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-700'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3">
-                          <div className={`w-4 h-4 rounded-full border-2 ${
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${
                             isSelected
                               ? 'border-primary-500 bg-primary-500'
-                              : 'border-gray-300'
+                              : 'border-gray-300 dark:border-gray-500'
                           }`}>
                             {isSelected && (
                               <div className="w-full h-full rounded-full bg-white scale-50"></div>
                             )}
                           </div>
-                          <div>
-                            <h4 className={`font-medium ${
-                              isSelected ? 'text-primary-700' : 'text-gray-900'
+                          <div className="min-w-0">
+                            <h4 className={`font-medium text-sm ${
+                              isSelected ? 'text-primary-700 dark:text-primary-400' : 'text-gray-900 dark:text-gray-100'
                             }`}>
                               {preset.label || preset.name}
                             </h4>
-                            <p className="text-sm text-gray-600 mt-1">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                               {preset.description}
                             </p>
                           </div>
                         </div>
                       </div>
-                      
-                      <div className="text-right ml-4">
-                        <div className={`text-lg font-semibold ${
-                          isSelected ? 'text-primary-600' : 'text-gray-700'
+
+                      <div className="text-right ml-3 flex-shrink-0">
+                        <div className={`text-base font-semibold ${
+                          isSelected ? 'text-primary-600 dark:text-primary-400' : 'text-gray-700 dark:text-gray-200'
                         }`}>
                           {(preset.estimatedSize || preset.characterCount).toLocaleString()}
                         </div>
-                        <div className="text-xs text-gray-500">文字</div>
-                        <div className={`text-xs px-2 py-1 rounded-full mt-1 ${
-                          info.estimatedSize === '小' ? 'bg-green-100 text-green-700' :
-                          info.estimatedSize === '中' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-red-100 text-red-700'
+                        <div className="text-xs text-gray-500 dark:text-gray-400">文字</div>
+                        <div className={`text-xs px-2 py-0.5 rounded-full mt-1 ${
+                          info.estimatedSize === '小' ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400' :
+                          info.estimatedSize === '中' ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400' :
+                          'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400'
                         }`}>
                           {info.estimatedSize}サイズ
                         </div>
@@ -143,7 +145,7 @@ const CharacterSetSelector: React.FC<CharacterSetSelectorProps> = ({
                     </div>
 
                     {/* カテゴリー表示 */}
-                    <div className="mt-3 flex flex-wrap gap-1">
+                    <div className="mt-2 flex flex-wrap gap-1">
                       {preset.categories.map((category) => {
                         const categoryLabels: Record<string, string> = {
                           'hiragana': 'ひらがな',
@@ -154,11 +156,11 @@ const CharacterSetSelector: React.FC<CharacterSetSelectorProps> = ({
                           'kanji-standard': '常用漢字',
                           'kanji-jis1': 'JIS第1水準',
                         };
-                        
+
                         return (
                           <span
                             key={category}
-                            className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded"
+                            className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded"
                           >
                             {categoryLabels[category] || category}
                           </span>
@@ -174,52 +176,14 @@ const CharacterSetSelector: React.FC<CharacterSetSelectorProps> = ({
 
         {/* カスタム文字セット入力 */}
         {selectedMode === 'custom' && (
-          <div className="space-y-4">
-            <p className="text-sm text-gray-600">
-              サブセットに含めたい文字を直接指定できます。テキストファイルからの読み込みも可能です。
+          <div className="space-y-3">
+            <p className="text-xs text-gray-600 dark:text-gray-400">
+              サブセットに含めたい文字を直接指定できます。
             </p>
-            
+
             <CustomCharacterInput
               onCharacterSetChange={handleCustomCharacterChange}
             />
-          </div>
-        )}
-      </div>
-
-      {/* 選択中の情報表示 */}
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <h4 className="text-sm font-medium text-gray-700 mb-2">選択中の文字セット</h4>
-        {selectedMode === 'preset' ? (
-          <div className="space-y-1">
-            <div className="text-sm">
-              <span className="text-gray-600">プリセット: </span>
-              <span className="font-medium text-gray-900">
-                {CHARACTER_PRESETS.find(p => p.id === selectedPreset)?.label || CHARACTER_PRESETS.find(p => p.id === selectedPreset)?.name}
-              </span>
-            </div>
-            <div className="text-sm">
-              <span className="text-gray-600">文字数: </span>
-              <span className="font-medium text-primary-600">
-                {(CHARACTER_PRESETS.find(p => p.id === selectedPreset)?.estimatedSize || CHARACTER_PRESETS.find(p => p.id === selectedPreset)?.characterCount || 0).toLocaleString()}文字
-              </span>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-1">
-            <div className="text-sm">
-              <span className="text-gray-600">カスタム文字セット</span>
-            </div>
-            <div className="text-sm">
-              <span className="text-gray-600">文字数: </span>
-              <span className="font-medium text-primary-600">
-                {customCharacters.length.toLocaleString()}文字
-              </span>
-            </div>
-            {customCharacters.length === 0 && (
-              <div className="text-xs text-orange-600">
-                文字が入力されていません
-              </div>
-            )}
           </div>
         )}
       </div>

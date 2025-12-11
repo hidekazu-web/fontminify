@@ -10,40 +10,45 @@ const FontInfoPanel: React.FC = () => {
   }
 
   return (
-    <div className="font-info-panel">
-      <h3>フォント情報</h3>
-      <div className="font-list">
-        {selectedFiles.map((filePath, index) => {
+    <div className="p-4 border-b border-gray-200 dark:border-gray-700 overflow-auto max-h-[40%]">
+      <h3 className="text-base font-semibold mb-4 text-gray-900 dark:text-gray-100">
+        フォント情報
+      </h3>
+      <div className="space-y-3">
+        {selectedFiles.map((filePath) => {
           const analysis = fontAnalyses[filePath];
-          
+
           return (
-            <div key={filePath} className="font-item">
-              <div className="font-item-header">
-                <span className="font-name">
+            <div
+              key={filePath}
+              className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-3"
+            >
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate mr-2">
                   {analysis?.fileName || filePath.split('/').pop()}
                 </span>
-                <span className="font-size">
+                <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
                   {analysis?.fileSize ? formatFileSize(analysis.fileSize) : ''}
                 </span>
               </div>
-              
+
               {analysis && (
-                <div className="font-details">
-                  <div className="detail-row">
-                    <span className="label">フォントファミリー:</span>
-                    <span className="value">{analysis.fontFamily}</span>
+                <div className="text-xs space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500 dark:text-gray-400">フォントファミリー:</span>
+                    <span className="text-gray-900 dark:text-gray-100 font-medium">{analysis.fontFamily}</span>
                   </div>
-                  <div className="detail-row">
-                    <span className="label">フォーマット:</span>
-                    <span className="value">{analysis.format.toUpperCase()}</span>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500 dark:text-gray-400">フォーマット:</span>
+                    <span className="text-gray-900 dark:text-gray-100 font-medium">{analysis.format.toUpperCase()}</span>
                   </div>
-                  <div className="detail-row">
-                    <span className="label">グリフ数:</span>
-                    <span className="value">{analysis.glyphCount}</span>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500 dark:text-gray-400">グリフ数:</span>
+                    <span className="text-gray-900 dark:text-gray-100 font-medium">{analysis.glyphCount.toLocaleString()}</span>
                   </div>
-                  <div className="detail-row">
-                    <span className="label">可変フォント:</span>
-                    <span className="value">{analysis.isVariableFont ? 'はい' : 'いいえ'}</span>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500 dark:text-gray-400">可変フォント:</span>
+                    <span className="text-gray-900 dark:text-gray-100 font-medium">{analysis.isVariableFont ? 'はい' : 'いいえ'}</span>
                   </div>
                 </div>
               )}

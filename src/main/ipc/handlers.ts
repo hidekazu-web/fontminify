@@ -85,6 +85,13 @@ export function registerIPCHandlers(): void {
       const result = await subsetFont(options, (progress) => {
         window?.webContents.send(IPCChannel.PROGRESS_UPDATE, progress);
       });
+
+      // outputPathが指定されている場合はファイルに保存
+      if (options.outputPath) {
+        await saveFileToPath(options.outputPath, result);
+        console.log(`Font saved to: ${options.outputPath}`);
+      }
+
       return result;
     } catch (error) {
       console.error('Font subsetting error:', error);

@@ -20,7 +20,7 @@ function App() {
             <FileDropZone />
           ) : (
             <div className="flex flex-1 overflow-hidden">
-              <div className="w-96 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden">
+              <div className="w-[420px] min-w-[380px] bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden">
                 <FontInfoPanel />
                 <CharacterSetPanel />
               </div>
