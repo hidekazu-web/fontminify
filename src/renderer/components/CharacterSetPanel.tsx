@@ -94,8 +94,16 @@ const OutputOptionsSection: React.FC<OutputOptionsSectionProps> = ({
                   className="sr-only"
                 />
                 <div className="flex-1">
-                  <div className="font-medium text-xs text-gray-900 dark:text-gray-100">{format.label}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">{format.description}</div>
+                  <div className={`font-medium text-xs ${
+                    subsetOptions.outputFormat === format.value
+                      ? 'text-primary-700 dark:text-primary-300'
+                      : 'text-gray-900 dark:text-gray-100'
+                  }`}>{format.label}</div>
+                  <div className={`text-xs ${
+                    subsetOptions.outputFormat === format.value
+                      ? 'text-primary-600 dark:text-primary-400'
+                      : 'text-gray-500 dark:text-gray-400'
+                  }`}>{format.description}</div>
                 </div>
                 <div
                   className={`w-3 h-3 rounded-full border-2 ${

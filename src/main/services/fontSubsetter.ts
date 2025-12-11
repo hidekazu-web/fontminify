@@ -95,41 +95,65 @@ export async function subsetFont(
   options: SubsetOptions,
   progressCallback: ProgressCallback
 ): Promise<Buffer> {
+  console.log('=== subsetFont called ===');
+  console.log('Options:', JSON.stringify({
+    inputPath: options.inputPath,
+    outputPath: options.outputPath,
+    preset: options.preset,
+    outputFormat: options.outputFormat,
+    hasCustomCharacters: !!options.customCharacters,
+  }, null, 2));
+
   try {
     // フェーズ1: 解析開始
+    console.log('Phase 1: Analyzing...');
     updateProgress(progressCallback, 'analyzing', 10, options.inputPath, 15);
 
     // フォントファイルを読み込み
+    console.log('Reading font file...');
     const fontBuffer = readFileSync(options.inputPath);
+    console.log('Font file read successfully, size:', fontBuffer.length);
 
     // フェーズ2: 文字セット決定
+    console.log('Phase 2: Determining character set...');
     const characterSet = determineCharacterSet(options);
+    console.log('Character set determined, length:', characterSet.length);
 
     // フェーズ3: サブセット化
+    console.log('Phase 3: Subsetting...');
     updateProgress(progressCallback, 'subsetting', 30, options.inputPath, 10);
     const subsetFontBuffer = await performSubset(fontBuffer, characterSet, options);
+    console.log('Subset completed, output size:', subsetFontBuffer.length);
 
     // フェーズ4: 最適化
+    console.log('Phase 4: Optimizing...');
     updateProgress(progressCallback, 'optimizing', 80, options.inputPath, 3);
 
     // フェーズ5: WOFF2圧縮（必要な場合）
     let outputBuffer = subsetFontBuffer;
     if (options.enableWoff2Compression && options.outputFormat !== 'woff2') {
+      console.log('Phase 5: WOFF2 compression...');
       updateProgress(progressCallback, 'compressing', 85, options.inputPath, 2);
 
       try {
         outputBuffer = await compressToWoff2Format(fontBuffer, characterSet);
-      } catch {
+        console.log('WOFF2 compression completed');
+      } catch (e) {
+        console.warn('WOFF2 compression failed, using original format:', e);
         // WOFF2圧縮に失敗した場合は元の形式を使用
         outputBuffer = subsetFontBuffer;
       }
     }
 
     // フェーズ6: 完了
+    console.log('Phase 6: Complete!');
+    console.log('Final output size:', outputBuffer.length);
     updateProgress(progressCallback, 'complete', 100, options.inputPath, 0);
 
     return outputBuffer;
   } catch (error) {
+    console.error('=== subsetFont ERROR ===');
+    console.error('Error:', error);
     const errorMessage = error instanceof Error ? error.message : '不明なエラーが発生しました';
 
     updateProgress(

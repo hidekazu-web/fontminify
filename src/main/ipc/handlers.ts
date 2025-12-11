@@ -80,21 +80,34 @@ export function registerIPCHandlers(): void {
 
   // フォントサブセット化
   ipcMain.handle(IPCChannel.SUBSET_FONT, async (event, options: SubsetOptions) => {
+    console.log('=== IPC SUBSET_FONT handler called ===');
+    console.log('Received options:', JSON.stringify({
+      inputPath: options.inputPath,
+      outputPath: options.outputPath,
+      preset: options.preset,
+      outputFormat: options.outputFormat,
+    }, null, 2));
+
     try {
       const window = BrowserWindow.fromWebContents(event.sender);
+      console.log('Starting subsetFont...');
       const result = await subsetFont(options, (progress) => {
+        console.log('Progress update:', progress.phase, progress.progress + '%');
         window?.webContents.send(IPCChannel.PROGRESS_UPDATE, progress);
       });
+      console.log('subsetFont completed, result size:', result?.length);
 
       // outputPathが指定されている場合はファイルに保存
       if (options.outputPath) {
+        console.log('Saving to:', options.outputPath);
         await saveFileToPath(options.outputPath, result);
         console.log(`Font saved to: ${options.outputPath}`);
       }
 
       return result;
     } catch (error) {
-      console.error('Font subsetting error:', error);
+      console.error('=== Font subsetting error in IPC handler ===');
+      console.error('Error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const window = BrowserWindow.fromWebContents(event.sender);
       window?.webContents.send(IPCChannel.ERROR, {

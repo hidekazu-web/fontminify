@@ -11,11 +11,11 @@ const ProgressPanel: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 p-6 bg-gray-50">
+    <div className="flex-1 p-6 bg-gray-50 dark:bg-gray-900">
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               フォント処理中
             </h2>
             
@@ -42,7 +42,7 @@ const ProgressPanel: React.FC = () => {
           {/* 個別ファイルの進捗 */}
           {processingJobs.length > 0 && (
             <div className="space-y-4">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                 処理状況
               </h3>
               
@@ -51,22 +51,22 @@ const ProgressPanel: React.FC = () => {
                   key={job.id}
                   className={`p-4 rounded-lg border ${
                     job.status === 'completed'
-                      ? 'bg-green-50 border-green-200'
+                      ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800'
                       : job.status === 'error'
-                      ? 'bg-red-50 border-red-200'
+                      ? 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800'
                       : job.status === 'processing'
-                      ? 'bg-blue-50 border-blue-200'
-                      : 'bg-gray-50 border-gray-200'
+                      ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800'
+                      : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <div className="text-sm font-medium text-gray-900 truncate flex-1 mr-3">
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate flex-1 mr-3">
                       {job.filePath.split('/').pop()}
                     </div>
                     
                     <div className="flex items-center space-x-2">
                       {job.status === 'processing' && (
-                        <div className="text-xs text-blue-600">
+                        <div className="text-xs text-blue-600 dark:text-blue-400">
                           {job.progress}%
                         </div>
                       )}
@@ -84,7 +84,7 @@ const ProgressPanel: React.FC = () => {
                   </div>
 
                   {job.status === 'processing' && (
-                    <div className="w-full bg-gray-200 rounded-full h-1">
+                    <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1">
                       <div
                         className="bg-blue-500 h-1 rounded-full transition-all duration-300"
                         style={{ width: `${job.progress}%` }}
@@ -93,7 +93,7 @@ const ProgressPanel: React.FC = () => {
                   )}
 
                   {job.status === 'completed' && job.originalSize && job.compressedSize && (
-                    <div className="mt-2 text-xs text-green-700">
+                    <div className="mt-2 text-xs text-green-700 dark:text-green-400">
                       {formatFileSize(job.originalSize)} → {formatFileSize(job.compressedSize)}
                       <span className="ml-2 font-medium">
                         ({(((job.originalSize - job.compressedSize) / job.originalSize) * 100).toFixed(1)}% 削減)
@@ -102,13 +102,13 @@ const ProgressPanel: React.FC = () => {
                   )}
 
                   {job.status === 'error' && job.error && (
-                    <div className="mt-2 text-xs text-red-700">
+                    <div className="mt-2 text-xs text-red-700 dark:text-red-400">
                       エラー: {job.error}
                     </div>
                   )}
 
                   {job.outputPath && job.status === 'completed' && (
-                    <div className="mt-2 text-xs text-gray-500">
+                    <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                       保存先: {job.outputPath}
                     </div>
                   )}
@@ -119,16 +119,16 @@ const ProgressPanel: React.FC = () => {
 
           {/* 完了メッセージ */}
           {!isProcessing && processingJobs.every(job => job.status === 'completed' || job.status === 'error') && (
-            <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg">
               <div className="flex items-center">
-                <svg className="w-5 h-5 text-green-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="w-5 h-5 text-green-600 dark:text-green-400 mr-2" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
                 <div>
-                  <div className="text-sm font-medium text-green-800">
+                  <div className="text-sm font-medium text-green-800 dark:text-green-300">
                     処理が完了しました
                   </div>
-                  <div className="text-xs text-green-600 mt-1">
+                  <div className="text-xs text-green-600 dark:text-green-400 mt-1">
                     {processingJobs.filter(job => job.status === 'completed').length} / {processingJobs.length} ファイルが正常に処理されました
                   </div>
                 </div>
