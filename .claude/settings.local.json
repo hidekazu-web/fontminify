@@ -16,7 +16,9 @@
       "Bash(git add:*)",
       "Bash(git commit -m \"$(cat <<''EOF''\nchore: プロジェクト整理と不要ファイル削除\n\n- 不要なテスト用JSファイルを削除（28個）\n- Docker環境設定を追加\n- ドキュメント（docs/）を追加\n- テスト用フォント（Noto Sans JP）を追加\n- 各種コンポーネントとサービスの改善\nEOF\n)\")",
       "Bash(git push)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }
