@@ -144,10 +144,10 @@ export function useFontProcessing(options: UseFontProcessingOptions = {}): UseFo
         );
 
         // ElectronAPIが利用可能な場合
-        if (typeof window.electronAPI?.showSaveDialog === 'function' && typeof window.electronAPI?.subsetFont === 'function') {
+        if (typeof window.electronAPI?.saveFileDialog === 'function' && typeof window.electronAPI?.subsetFont === 'function') {
           // 保存先選択ダイアログを表示
           const outputPath = await executeWithErrorHandling(
-            () => window.electronAPI.showSaveDialog(
+            () => window.electronAPI.saveFileDialog(
               defaultFileName,
               subsetOptions.outputFormat || 'woff2'
             ),

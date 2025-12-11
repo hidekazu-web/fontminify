@@ -20,10 +20,15 @@ function App() {
             <FileDropZone />
           ) : (
             <div className="flex flex-1 overflow-hidden">
-              <div className="w-[420px] min-w-[380px] bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden">
+              {/* 左パネル: フォント情報 */}
+              <div className="w-[280px] min-w-[250px] bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden">
                 <FontInfoPanel />
+              </div>
+              {/* 中央パネル: 設定オプション */}
+              <div className="w-[400px] min-w-[350px] bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden">
                 <CharacterSetPanel />
               </div>
+              {/* 右パネル: 進捗表示 */}
               <div className="flex-1 bg-gray-50 dark:bg-gray-900 overflow-auto">
                 <ProgressPanel />
               </div>
