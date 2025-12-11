@@ -44,6 +44,23 @@ function determineCharacterSet(options: SubsetOptions): string {
 }
 
 /**
+ * UIの出力形式をsubset-fontがサポートする形式に変換
+ * subset-fontは 'sfnt', 'woff', 'woff2' のみサポート
+ */
+function convertToSubsetFontFormat(format: string): 'sfnt' | 'woff' | 'woff2' {
+  switch (format) {
+    case 'ttf':
+    case 'otf':
+      return 'sfnt';
+    case 'woff':
+      return 'woff';
+    case 'woff2':
+    default:
+      return 'woff2';
+  }
+}
+
+/**
  * フォントをサブセット化
  */
 async function performSubset(
@@ -51,16 +68,19 @@ async function performSubset(
   characterSet: string,
   options: SubsetOptions
 ): Promise<Buffer> {
+  const targetFormat = convertToSubsetFontFormat(options.outputFormat || 'woff2');
+
   console.log('サブセット化開始:', {
     text: characterSet.slice(0, 50) + (characterSet.length > 50 ? '...' : ''),
     textLength: characterSet.length,
-    targetFormat: options.outputFormat,
+    requestedFormat: options.outputFormat,
+    targetFormat: targetFormat,
     bufferSize: fontBuffer.length,
   });
 
   try {
     const subsetFontBuffer = await subsetFontLib(fontBuffer, characterSet, {
-      targetFormat: options.outputFormat || 'woff2',
+      targetFormat: targetFormat,
       preserveHinting: !options.removeHinting,
       desubroutinize: options.desubroutinize || false,
     });

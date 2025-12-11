@@ -65,8 +65,6 @@ const CustomCharacterInput: React.FC<CustomCharacterInputProps> = ({
   };
 
   const getCharacterPreview = () => {
-    if (uniqueChars.length === 0) return '';
-    
     // 文字を種類別に分類
     const hiragana: string[] = [];
     const katakana: string[] = [];
@@ -101,52 +99,52 @@ const CustomCharacterInput: React.FC<CustomCharacterInputProps> = ({
     <div className={`space-y-4 ${className}`}>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-gray-700">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
             カスタム文字セット
           </label>
           <div className="flex items-center space-x-2">
             <button
               onClick={handleFileImport}
-              className="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-600 transition-colors"
+              className="text-xs px-3 py-1 bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 rounded-md text-gray-600 dark:text-gray-300 transition-colors"
             >
               📁 ファイルから読み込み
             </button>
             <button
               onClick={handleClearInput}
-              className="text-xs px-3 py-1 bg-red-100 hover:bg-red-200 rounded-md text-red-600 transition-colors"
+              className="text-xs px-3 py-1 bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-900/70 rounded-md text-red-600 dark:text-red-400 transition-colors"
               disabled={!inputText}
             >
               🗑 クリア
             </button>
           </div>
         </div>
-        
+
         <textarea
           value={inputText}
           onChange={handleInputChange}
           placeholder="含めたい文字を直接入力してください。テキストファイルからのインポートも可能です。"
-          className="w-full h-32 p-3 border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          className="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-md resize-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
           style={{ fontFamily: 'monospace' }}
         />
       </div>
 
       {/* 統計情報 */}
       {charCount > 0 && (
-        <div className="bg-gray-50 p-3 rounded-md">
+        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
           <div className="flex items-center justify-between text-sm">
             <div className="space-x-4">
-              <span className="text-gray-600">
-                ユニーク文字数: <span className="font-semibold text-primary-600">{charCount}</span>
+              <span className="text-gray-600 dark:text-gray-300">
+                ユニーク文字数: <span className="font-semibold text-primary-600 dark:text-primary-400">{charCount}</span>
               </span>
               {duplicateCount > 0 && (
-                <span className="text-gray-500">
+                <span className="text-gray-500 dark:text-gray-400">
                   重複除去: {duplicateCount}文字
                 </span>
               )}
             </div>
             <button
               onClick={() => setShowPreview(!showPreview)}
-              className="text-xs px-2 py-1 bg-primary-100 hover:bg-primary-200 rounded text-primary-700 transition-colors"
+              className="text-xs px-2 py-1 bg-primary-100 dark:bg-primary-900/50 hover:bg-primary-200 dark:hover:bg-primary-900/70 rounded text-primary-700 dark:text-primary-300 transition-colors"
             >
               {showPreview ? '▲ 非表示' : '▼ プレビュー'}
             </button>
@@ -156,71 +154,71 @@ const CustomCharacterInput: React.FC<CustomCharacterInputProps> = ({
 
       {/* 文字種別プレビュー */}
       {showPreview && charCount > 0 && (
-        <div className="bg-white border border-gray-200 rounded-md p-4 space-y-3">
-          <h4 className="text-sm font-medium text-gray-800 mb-3">文字種別プレビュー</h4>
-          
-          {typeof preview === 'object' && preview.hiragana && preview.hiragana.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md p-4 space-y-3">
+          <h4 className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-3">文字種別プレビュー</h4>
+
+          {preview.hiragana.length > 0 && (
             <div>
-              <div className="text-xs text-gray-600 mb-1">
+              <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
                 ひらがな ({preview.hiragana.length}文字)
               </div>
-              <div className="text-sm bg-blue-50 p-2 rounded text-blue-800 break-all">
+              <div className="text-sm bg-blue-50 dark:bg-blue-900/30 p-2 rounded text-blue-800 dark:text-blue-300 break-all">
                 {preview.hiragana.join('')}
               </div>
             </div>
           )}
-          
-          {typeof preview === 'object' && preview.katakana && preview.katakana.length > 0 && (
+
+          {preview.katakana.length > 0 && (
             <div>
-              <div className="text-xs text-gray-600 mb-1">
+              <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
                 カタカナ ({preview.katakana.length}文字)
               </div>
-              <div className="text-sm bg-green-50 p-2 rounded text-green-800 break-all">
+              <div className="text-sm bg-green-50 dark:bg-green-900/30 p-2 rounded text-green-800 dark:text-green-300 break-all">
                 {preview.katakana.join('')}
               </div>
             </div>
           )}
-          
-          {typeof preview === 'object' && preview.kanji && preview.kanji.length > 0 && (
+
+          {preview.kanji.length > 0 && (
             <div>
-              <div className="text-xs text-gray-600 mb-1">
+              <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
                 漢字 ({preview.kanji.length}文字)
               </div>
-              <div className="text-sm bg-red-50 p-2 rounded text-red-800 break-all">
+              <div className="text-sm bg-red-50 dark:bg-red-900/30 p-2 rounded text-red-800 dark:text-red-300 break-all">
                 {preview.kanji.slice(0, 50).join('')}
                 {preview.kanji.length > 50 && '...'}
               </div>
             </div>
           )}
-          
-          {typeof preview === 'object' && preview.ascii && preview.ascii.length > 0 && (
+
+          {preview.ascii.length > 0 && (
             <div>
-              <div className="text-xs text-gray-600 mb-1">
+              <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
                 ASCII ({preview.ascii.length}文字)
               </div>
-              <div className="text-sm bg-yellow-50 p-2 rounded text-yellow-800 break-all font-mono">
+              <div className="text-sm bg-yellow-50 dark:bg-yellow-900/30 p-2 rounded text-yellow-800 dark:text-yellow-300 break-all font-mono">
                 {preview.ascii.join('')}
               </div>
             </div>
           )}
-          
-          {typeof preview === 'object' && preview.symbols && preview.symbols.length > 0 && (
+
+          {preview.symbols.length > 0 && (
             <div>
-              <div className="text-xs text-gray-600 mb-1">
+              <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
                 記号 ({preview.symbols.length}文字)
               </div>
-              <div className="text-sm bg-purple-50 p-2 rounded text-purple-800 break-all">
+              <div className="text-sm bg-purple-50 dark:bg-purple-900/30 p-2 rounded text-purple-800 dark:text-purple-300 break-all">
                 {preview.symbols.join('')}
               </div>
             </div>
           )}
-          
-          {typeof preview === 'object' && preview.others && preview.others.length > 0 && (
+
+          {preview.others.length > 0 && (
             <div>
-              <div className="text-xs text-gray-600 mb-1">
+              <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
                 その他 ({preview.others.length}文字)
               </div>
-              <div className="text-sm bg-gray-50 p-2 rounded text-gray-800 break-all">
+              <div className="text-sm bg-gray-50 dark:bg-gray-700 p-2 rounded text-gray-800 dark:text-gray-200 break-all">
                 {preview.others.join('')}
               </div>
             </div>
@@ -230,7 +228,7 @@ const CustomCharacterInput: React.FC<CustomCharacterInputProps> = ({
 
       {/* 警告メッセージ */}
       {charCount > 5000 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
+        <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-md p-3">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="w-5 h-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
@@ -238,10 +236,10 @@ const CustomCharacterInput: React.FC<CustomCharacterInputProps> = ({
               </svg>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-yellow-800">
+              <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-300">
                 文字数が多すぎます
               </h3>
-              <div className="mt-2 text-sm text-yellow-700">
+              <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-400">
                 <p>
                   {charCount}文字が選択されています。大量の文字はサブセット化の効果を低下させる可能性があります。
                   必要最小限の文字セットを使用することをお勧めします。
