@@ -30,7 +30,7 @@ export function useFontProcessing(options: UseFontProcessingOptions = {}): UseFo
     executeWithErrorHandling,
   } = useFontStore();
 
-  const [selectedPreset, setSelectedPreset] = useState<string | undefined>('minimum');
+  const [selectedPreset, setSelectedPreset] = useState<string | undefined>('standard');
   const [customCharacters, setCustomCharacters] = useState<string>('');
 
   /**

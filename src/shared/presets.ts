@@ -2,7 +2,7 @@ import { CHARACTER_SETS } from './constants';
 import { CharacterSetPreset, CharCategory } from './types';
 
 export interface PresetDefinition {
-  id: CharacterSetPreset | 'minimum' | 'basic' | 'standard' | 'extended' | 'full';
+  id: CharacterSetPreset | 'minimum' | 'standard' | 'custom';
   name: string;
   description: string;
   characters: string;
@@ -44,85 +44,24 @@ function buildPreset(config: PresetConfig): PresetDefinition {
 }
 
 /**
- * プリセット設定の定義
+ * プリセット設定の定義（シンプル化）
+ * - 最小: ひらがな・カタカナ・ASCII・全角記号（漢字なし）
+ * - 標準: 最小 + 常用漢字2136字（推奨、デフォルト）
  */
 const PRESET_CONFIGS: PresetConfig[] = [
   {
     id: 'minimum',
     name: '最小セット',
-    description: 'ひらがな・カタカナ・英数字・基本記号',
-    sets: ['hiragana', 'katakana', 'ascii'],
-    categories: ['hiragana', 'katakana', 'ascii'],
-  },
-  {
-    id: 'basic',
-    name: '基本セット',
-    description: '最小セット + N5レベル漢字',
-    sets: ['hiragana', 'katakana', 'ascii', 'kanjiN5'],
-    categories: ['hiragana', 'katakana', 'ascii', 'kanji-basic'],
+    description: 'ひらがな・カタカナ・英数字・記号（漢字なし）',
+    sets: ['hiragana', 'katakana', 'ascii', 'japaneseSymbols', 'fullwidthAlphanumeric'],
+    categories: ['hiragana', 'katakana', 'ascii', 'symbols'],
   },
   {
     id: 'standard',
-    name: '標準セット',
-    description: '基本セット + N4レベル漢字',
-    sets: ['hiragana', 'katakana', 'ascii', 'kanjiN5', 'kanjiN4'],
-    categories: ['hiragana', 'katakana', 'ascii', 'kanji-standard'],
-  },
-  {
-    id: 'extended',
-    name: '拡張セット',
-    description: '標準セット + N3レベル漢字',
-    sets: ['hiragana', 'katakana', 'ascii', 'kanjiN5', 'kanjiN4', 'kanjiN3'],
-    categories: ['hiragana', 'katakana', 'ascii', 'kanji-advanced'],
-  },
-  {
-    id: 'full',
-    name: 'フルセット',
-    description: '拡張セット + 常用漢字',
-    sets: ['hiragana', 'katakana', 'ascii', 'kanjiN5', 'kanjiN4', 'kanjiN3', 'kanjiJoyo'],
-    categories: ['hiragana', 'katakana', 'ascii', 'kanji-complete'],
-  },
-  {
-    id: 'kanji-n5',
-    name: 'JLPT N5漢字',
-    description: '最も基本的な漢字',
-    sets: ['hiragana', 'katakana', 'ascii', 'kanjiN5'],
-    categories: ['hiragana', 'katakana', 'ascii', 'kanji-basic'],
-  },
-  {
-    id: 'kanji-n4',
-    name: 'JLPT N4漢字',
-    description: 'N5 + N4レベルの漢字',
-    sets: ['hiragana', 'katakana', 'ascii', 'kanjiN4'],
-    categories: ['hiragana', 'katakana', 'ascii', 'kanji-basic'],
-  },
-  {
-    id: 'kanji-n3',
-    name: 'JLPT N3漢字',
-    description: 'N5-N3レベルの漢字',
-    sets: ['hiragana', 'katakana', 'ascii', 'kanjiN3'],
-    categories: ['hiragana', 'katakana', 'ascii', 'kanji-standard'],
-  },
-  {
-    id: 'kanji-joyo',
-    name: '常用漢字',
-    description: '小中学校で学ぶ漢字',
-    sets: ['hiragana', 'katakana', 'ascii', 'kanjiJoyo'],
-    categories: ['hiragana', 'katakana', 'ascii', 'kanji-standard'],
-  },
-  {
-    id: 'hiragana-katakana',
-    name: 'ひらがな・カタカナ',
-    description: 'ひらがな・カタカナのみ',
-    sets: ['hiragana', 'katakana'],
-    categories: ['hiragana', 'katakana'],
-  },
-  {
-    id: 'ascii',
-    name: 'ASCII文字',
-    description: '英数字・記号のみ',
-    sets: ['ascii'],
-    categories: ['ascii'],
+    name: '標準セット（推奨）',
+    description: '最小セット + 常用漢字2136字',
+    sets: ['hiragana', 'katakana', 'ascii', 'japaneseSymbols', 'fullwidthAlphanumeric', 'joyoKanji'],
+    categories: ['hiragana', 'katakana', 'ascii', 'symbols', 'kanji-standard'],
   },
 ];
 

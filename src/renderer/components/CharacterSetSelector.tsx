@@ -12,7 +12,7 @@ const CharacterSetSelector: React.FC<CharacterSetSelectorProps> = ({
   className = '',
 }) => {
   const [selectedMode, setSelectedMode] = useState<'preset' | 'custom'>('preset');
-  const [selectedPreset, setSelectedPreset] = useState<string>('minimum');
+  const [selectedPreset, setSelectedPreset] = useState<string>('standard');
   const [customCharacters, setCustomCharacters] = useState<string>('');
 
   const handleModeChange = (mode: 'preset' | 'custom') => {

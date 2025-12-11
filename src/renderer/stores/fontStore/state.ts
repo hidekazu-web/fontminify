@@ -52,7 +52,7 @@ export function createInitialState(isDarkMode: boolean): FontStoreState {
     subsetOptions: {
       inputPath: '',
       outputPath: '',
-      preset: 'minimum',
+      preset: 'standard',
       outputFormat: 'woff2',
       enableWoff2Compression: true,
       compressionLevel: 6,
@@ -70,7 +70,7 @@ export function createInitialState(isDarkMode: boolean): FontStoreState {
     hasErrors: false,
 
     // UI状態
-    selectedPreset: 'minimum',
+    selectedPreset: 'standard',
     customCharacters: '',
     showAdvancedOptions: false,
     isDragOver: false,

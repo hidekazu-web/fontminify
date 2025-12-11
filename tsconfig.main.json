@@ -22,9 +22,10 @@
   "include": [
     "src/main/**/*",
     "src/shared/constants.ts",
-    "src/shared/errors.ts", 
+    "src/shared/errors.ts",
     "src/shared/presets.ts",
     "src/shared/types.ts",
+    "src/shared/charsets/**/*",
     "@types/**/*"
   ],
   "exclude": [
