@@ -5,8 +5,41 @@ import { subsetFont, compressToWoff2, calculateCompressionStats, estimateSubsetS
 import { saveFileToPath, validateSavePath, generateOutputFileName } from '../services/fileManager';
 import { initializeUpdateHandlers } from './updateHandlers';
 
-// キャンセル状態を管理
-let isCancelled = false;
+/**
+ * 処理キャンセル状態を管理するクラス
+ * 並行処理に対応し、処理IDごとにキャンセル状態を追跡
+ */
+class CancellationManager {
+  private cancelledProcesses: Set<number> = new Set();
+  private globalCancelled = false;
+
+  cancel(webContentsId?: number): void {
+    if (webContentsId !== undefined) {
+      this.cancelledProcesses.add(webContentsId);
+    } else {
+      this.globalCancelled = true;
+    }
+  }
+
+  isCancelled(webContentsId?: number): boolean {
+    if (this.globalCancelled) return true;
+    if (webContentsId !== undefined) {
+      return this.cancelledProcesses.has(webContentsId);
+    }
+    return false;
+  }
+
+  reset(webContentsId?: number): void {
+    if (webContentsId !== undefined) {
+      this.cancelledProcesses.delete(webContentsId);
+    } else {
+      this.globalCancelled = false;
+      this.cancelledProcesses.clear();
+    }
+  }
+}
+
+const cancellationManager = new CancellationManager();
 
 /**
  * IPCハンドラーを登録
@@ -185,21 +218,22 @@ export function registerIPCHandlers(): void {
 
   // 処理キャンセル
   ipcMain.handle(IPCChannel.CANCEL_PROCESSING, async (event) => {
-    isCancelled = true;
+    const webContentsId = event.sender.id;
+    cancellationManager.cancel(webContentsId);
     const window = BrowserWindow.fromWebContents(event.sender);
     window?.webContents.send(IPCChannel.PROCESSING_CANCELLED);
-    console.log('Processing cancelled by user');
+    console.log(`Processing cancelled by user (webContentsId: ${webContentsId})`);
   });
 }
 
 // キャンセル状態を確認するためのヘルパー関数
-export function getIsCancelled(): boolean {
-  return isCancelled;
+export function getIsCancelled(webContentsId?: number): boolean {
+  return cancellationManager.isCancelled(webContentsId);
 }
 
 // キャンセル状態をリセットするためのヘルパー関数
-export function resetCancelled(): void {
-  isCancelled = false;
+export function resetCancelled(webContentsId?: number): void {
+  cancellationManager.reset(webContentsId);
 }
 
 /**
