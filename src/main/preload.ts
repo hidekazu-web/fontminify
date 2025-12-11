@@ -28,7 +28,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke(IPCChannel.ESTIMATE_SIZE, filePath, characterSet, enableWoff2Compression),
   
   // ファイル保存ダイアログ
-  showSaveDialog: (defaultPath: string, outputFormat: string) =>
+  saveFileDialog: (defaultPath: string, outputFormat: string) =>
     ipcRenderer.invoke(IPCChannel.SAVE_FILE_DIALOG, defaultPath, outputFormat),
   
   // パス検証
@@ -72,7 +72,7 @@ try {
     timestamp: Date.now(),
     availableFunctions: [
       'getPathForFile', 'selectFiles', 'analyzeFont', 'subsetFont', 'compressWoff2',
-      'estimateSize', 'showSaveDialog', 'validateSavePath', 'saveFile',
+      'estimateSize', 'saveFileDialog', 'validateSavePath', 'saveFile',
       'cancelProcessing', 'onProgressUpdate', 'onError', 'onProcessingCancelled',
       'removeAllListeners'
     ]
