@@ -50,12 +50,14 @@ export enum SecurityErrorType {
 // ファイルサイズ制限 (100MB)
 export const MAX_FILE_SIZE = 100 * 1024 * 1024;
 
+type AllowedFileExtension = typeof ALLOWED_FILE_EXTENSIONS[number];
+
 /**
  * ファイル拡張子の検証
  */
 export function validateFileExtension(filename: string): boolean {
   const extension = filename.toLowerCase().match(/\.[^.]+$/)?.[0];
-  return extension ? ALLOWED_FILE_EXTENSIONS.includes(extension as any) : false;
+  return extension ? ALLOWED_FILE_EXTENSIONS.includes(extension as AllowedFileExtension) : false;
 }
 
 /**
@@ -100,7 +102,7 @@ export function sanitizeFileName(filename: string): string {
 /**
  * IPCメッセージの検証
  */
-export function validateIPCMessage(channel: string, data: any): boolean {
+export function validateIPCMessage(channel: string, data: unknown): boolean {
   // 許可されたIPCチャンネルのリスト
   const allowedChannels = [
     'font:analyze',
@@ -129,7 +131,7 @@ export function validateIPCMessage(channel: string, data: any): boolean {
 /**
  * セキュリティログの記録
  */
-export function logSecurityEvent(event: string, details: any = {}) {
+export function logSecurityEvent(event: string, details: Record<string, unknown> = {}): void {
   const logEntry = {
     timestamp: new Date().toISOString(),
     event,
@@ -139,7 +141,7 @@ export function logSecurityEvent(event: string, details: any = {}) {
   };
 
   console.warn('[SECURITY]', logEntry);
-  
+
   // 本番環境では外部ログサービスに送信することを検討
   if (process.env.NODE_ENV === 'production') {
     // TODO: セキュリティ監視サービスに送信

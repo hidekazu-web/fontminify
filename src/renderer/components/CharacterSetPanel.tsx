@@ -36,8 +36,8 @@ const CharacterSetPanel: React.FC = () => {
           subsetOptions.outputFormat || 'woff2'
         );
         
-        let outputPath: string | null = null;
-        let result: any = null;
+        let outputPath: string | null | undefined = null;
+        let result: Buffer | null = null;
         
         // ElectronAPIが利用可能な場合
         if (window.electronAPI && window.electronAPI.showSaveDialog && window.electronAPI.subsetFont) {
@@ -59,7 +59,7 @@ const CharacterSetPanel: React.FC = () => {
           result = await handleAsyncOperation(
             () => window.electronAPI.subsetFont({
               inputPath: filePath,
-              outputPath,
+              outputPath: outputPath || undefined,
               preset: subsetOptions.preset,
               customCharacters: subsetOptions.customCharacters,
               outputFormat: subsetOptions.outputFormat,

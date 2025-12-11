@@ -156,68 +156,58 @@ export const useFontStore = create<FontStore>()(
 
       // フォント解析を開始
       for (const filePath of newFiles) {
-        console.log('Analyzing font:', filePath);
         try {
-          let analysis: FontAnalysis;
-          
+          let analysis: FontAnalysis | null = null;
+
           // ElectronAPIが利用可能な場合
           if (window.electronAPI && window.electronAPI.analyzeFont) {
             analysis = await get().handleAsyncOperation(
               () => window.electronAPI.analyzeFont(filePath),
               filePath
             );
-          } else {
+          }
+
+          if (!analysis) {
             // Web版：基本的なフォント情報を生成
+            const fileName = filePath.split('/').pop() || filePath;
+            const ext = filePath.split('.').pop()?.toLowerCase() || '';
+            const format = (['ttf', 'otf', 'woff', 'woff2', 'ttc'].includes(ext) ? ext : 'ttf') as 'ttf' | 'otf' | 'woff' | 'woff2' | 'ttc';
             analysis = {
-              path: filePath,
-              name: filePath.split('/').pop() || filePath,
-              format: filePath.split('.').pop()?.toUpperCase() || 'UNKNOWN',
-              size: 0, // Web版では実際のサイズは取得困難
-              glyphCount: 0, // Web版では詳細グリフ数は取得困難
-              hasKerning: false,
-              hasLigatures: false,
-              isVariableFont: false,
-              supportedLanguages: ['ja', 'en'], // デフォルト値
+              fileName,
+              fileSize: 0,
+              format,
+              fontFamily: fileName.replace(/\.[^/.]+$/, '') || 'Unknown Font',
+              fontSubfamily: 'Regular',
+              version: '1.0',
+              glyphCount: 0,
               characterRanges: [],
-              metadata: {
-                familyName: filePath.split('/').pop()?.replace(/\.[^/.]+$/, "") || 'Unknown Font',
-                styleName: 'Regular',
-                version: '1.0',
-                copyright: 'Unknown',
-                designer: 'Unknown',
-                url: '',
-                license: 'Unknown'
-              }
+              features: [],
+              languages: ['ja', 'en'],
+              hasColorEmoji: false,
+              isVariableFont: false,
             };
           }
-          
-          if (analysis) {
-            console.log('Analysis successful:', analysis);
-            get().setFontAnalysis(filePath, analysis);
-          }
+
+          get().setFontAnalysis(filePath, analysis);
         } catch (error) {
           console.error('Font analysis error:', error);
           // Web版では非致命的エラーとして処理
+          const fileName = filePath.split('/').pop() || filePath;
+          const ext = filePath.split('.').pop()?.toLowerCase() || '';
+          const format = (['ttf', 'otf', 'woff', 'woff2', 'ttc'].includes(ext) ? ext : 'ttf') as 'ttf' | 'otf' | 'woff' | 'woff2' | 'ttc';
           const webAnalysis: FontAnalysis = {
-            path: filePath,
-            name: filePath.split('/').pop() || filePath,
-            format: filePath.split('.').pop()?.toUpperCase() || 'UNKNOWN',
-            size: 0,
+            fileName,
+            fileSize: 0,
+            format,
+            fontFamily: fileName.replace(/\.[^/.]+$/, '') || 'Unknown Font',
+            fontSubfamily: 'Regular',
+            version: '1.0',
             glyphCount: 0,
-            hasKerning: false,
-            hasLigatures: false,
-            isVariableFont: false,
-            supportedLanguages: ['ja', 'en'],
             characterRanges: [],
-            metadata: {
-              familyName: filePath.split('/').pop()?.replace(/\.[^/.]+$/, "") || 'Unknown Font',
-              styleName: 'Regular',
-              version: '1.0',
-              copyright: 'Unknown',
-              designer: 'Unknown',
-              url: '',
-              license: 'Unknown'
-            }
+            features: [],
+            languages: ['ja', 'en'],
+            hasColorEmoji: false,
+            isVariableFont: false,
           };
           get().setFontAnalysis(filePath, webAnalysis);
         }
@@ -402,7 +392,7 @@ export const useFontStore = create<FontStore>()(
       if (state.selectedPreset === 'custom') {
         return state.customCharacters;
       }
-      return getCharacterSetFromPreset(state.selectedPreset as any);
+      return getCharacterSetFromPreset(state.selectedPreset);
     },
 
     getTotalCharacterCount: () => {

@@ -24,23 +24,6 @@ export const DEFAULT_SUBSET_OPTIONS = {
   preserveGlyphOrder: true,
 } as const;
 
-export enum IPCChannel {
-  // ファイル操作
-  SELECT_FILES = 'select-files',
-  ANALYZE_FONT = 'analyze-font',
-  SUBSET_FONT = 'subset-font',
-  SAVE_FILE = 'save-file',
-  
-  // フォント処理
-  PROCESS_FONT = 'process-font',
-  CANCEL_PROCESSING = 'cancel-processing',
-  
-  // プログレス更新
-  PROGRESS_UPDATE = 'progress-update',
-  
-  // アップデート関連
-  CHECK_FOR_UPDATES = 'check-for-updates',
-  GET_APP_VERSION = 'get-app-version',
-  GET_UPDATE_SETTINGS = 'get-update-settings',
-  UPDATE_SETTINGS = 'update-settings'
-}
+// IPCChannelは src/shared/types.ts で一元定義
+// このファイルでは再エクスポートのみ行う
+export { IPCChannel } from './types';

@@ -1,4 +1,7 @@
 import { SUPPORTED_FONT_FORMATS, MAX_FILE_SIZE } from './constants';
+import type { SubsetOptions, OutputFormat } from './types';
+
+type SupportedFontFormat = typeof SUPPORTED_FONT_FORMATS[number];
 
 export interface ValidationResult {
   isValid: boolean;
@@ -38,7 +41,7 @@ export function validateFontFile(file: File | string): FileValidationResult {
 
   // 拡張子バリデーション
   const extension = getFileExtension(fileName).toLowerCase();
-  if (!SUPPORTED_FONT_FORMATS.includes(extension as any)) {
+  if (!SUPPORTED_FONT_FORMATS.includes(extension as SupportedFontFormat)) {
     errors.push(`サポートされていないファイル形式です`);
     errors.push(`サポート形式: ${SUPPORTED_FONT_FORMATS.join(', ')}`);
   } else {
@@ -198,11 +201,11 @@ export function isValidFontFile(fileName: string): boolean {
   }
   
   const extension = getFileExtension(fileName).toLowerCase();
-  return SUPPORTED_FONT_FORMATS.includes(extension as any);
+  return SUPPORTED_FONT_FORMATS.includes(extension as SupportedFontFormat);
 }
 
 // SubsetOptionsのバリデーション
-export function validateSubsetOptions(options: any): ValidationResult {
+export function validateSubsetOptions(options: Partial<SubsetOptions>): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -212,15 +215,15 @@ export function validateSubsetOptions(options: any): ValidationResult {
   }
 
   // 出力形式の検証
-  const validFormats = ['woff2', 'woff', 'ttf', 'otf'];
+  const validFormats: OutputFormat[] = ['woff2', 'woff', 'ttf', 'otf'];
   if (options.outputFormat && !validFormats.includes(options.outputFormat)) {
     errors.push('無効な出力形式です');
   }
 
   // 圧縮レベルの検証
   if (options.compressionLevel !== undefined) {
-    if (typeof options.compressionLevel !== 'number' || 
-        options.compressionLevel < 0 || 
+    if (typeof options.compressionLevel !== 'number' ||
+        options.compressionLevel < 0 ||
         options.compressionLevel > 10) {
       errors.push('圧縮レベルは0-10の範囲で指定してください');
     }

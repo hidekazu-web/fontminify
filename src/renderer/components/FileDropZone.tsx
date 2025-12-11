@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { useFontStore } from '../stores/fontStore';
 import { validateFileList } from '../../shared/validation';
 
+// Electron環境ではFileオブジェクトにpathプロパティが追加される
+interface ElectronFile extends File {
+  path?: string;
+}
+
 const FileDropZone: React.FC = () => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -36,15 +41,17 @@ const FileDropZone: React.FC = () => {
       
       // 部分的に有効なファイルがある場合は追加
       if (validation.validCount > 0) {
-        const validFilePaths = validation.valid.map(result => 
-          (result.file as File).path || (result.file as File).name
-        );
+        const validFilePaths = validation.valid.map(result => {
+          const file = result.file as ElectronFile;
+          return file.path || file.name;
+        });
         addFiles(validFilePaths);
       }
     } else if (validation.validCount > 0) {
-      const filePaths = validation.valid.map(result => 
-        (result.file as File).path || (result.file as File).name
-      );
+      const filePaths = validation.valid.map(result => {
+        const file = result.file as ElectronFile;
+        return file.path || file.name;
+      });
       addFiles(filePaths);
     }
   };

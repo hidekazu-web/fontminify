@@ -27,7 +27,7 @@ export async function subsetFont(
     if (options.customCharacters) {
       characterSet = options.customCharacters;
     } else if (options.preset) {
-      characterSet = getCharacterSetFromPreset(options.preset as any);
+      characterSet = getCharacterSetFromPreset(options.preset);
     } else {
       throw new Error('文字セットまたはプリセットが指定されていません');
     }
@@ -54,24 +54,16 @@ export async function subsetFont(
 
     let subsetBuffer: Buffer;
     try {
-      console.log('サブセット化開始:', {
-        text: characterSet.slice(0, 50) + (characterSet.length > 50 ? '...' : ''),
-        textLength: characterSet.length,
-        targetFormat: options.outputFormat,
-        bufferSize: fontBuffer.length
-      });
-      
       // subset-fontの正しい使用方法
       subsetBuffer = await subsetFontLib(fontBuffer, characterSet, {
         targetFormat: options.outputFormat || 'woff2',
         preserveHinting: !options.removeHinting,
         desubroutinize: options.desubroutinize || false
       });
-      
-      console.log('サブセット化完了:', subsetBuffer.length, 'bytes');
-    } catch (subsetError: any) {
+    } catch (subsetError) {
+      const errorMessage = subsetError instanceof Error ? subsetError.message : 'unknown error';
       console.error('サブセット化エラー:', subsetError);
-      throw new Error(`フォントサブセット化に失敗しました: ${subsetError.message || 'unknown error'}`);
+      throw new Error(`フォントサブセット化に失敗しました: ${errorMessage}`);
     }
 
     // プログレス更新: 最適化
@@ -165,9 +157,9 @@ export async function estimateSubsetSize(
     
     // 簡易的なサイズ推定（実際の文字数比率ベース）
     const fontkit = await import('fontkit');
-    const fontOrCollection = fontkit.openSync(fontBuffer as any);
+    const fontOrCollection = fontkit.openSync(fontBuffer);
     const font = 'fonts' in fontOrCollection ? fontOrCollection.fonts[0] : fontOrCollection;
-    const totalGlyphs = (font as any).numGlyphs;
+    const totalGlyphs = font.numGlyphs;
     const usedGlyphs = new Set(characterSet).size;
     
     // 概算での圧縮率計算

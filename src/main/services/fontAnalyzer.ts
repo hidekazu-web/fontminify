@@ -4,8 +4,6 @@ import { extname, basename } from 'path';
 
 export async function analyzeFont(filePath: string): Promise<FontAnalysis> {
   try {
-    console.log('Starting font analysis for:', filePath);
-    
     if (!filePath || typeof filePath !== 'string') {
       throw new Error('Invalid file path provided');
     }
@@ -29,8 +27,6 @@ export async function analyzeFont(filePath: string): Promise<FontAnalysis> {
     const fileName = basename(filePath);
     const ext = extname(filePath).toLowerCase();
     
-    console.log('File info:', { fileName, fileSize, ext });
-    
     let format: 'ttf' | 'otf' | 'woff' | 'woff2' | 'ttc';
     switch (ext) {
       case '.ttf':
@@ -52,11 +48,9 @@ export async function analyzeFont(filePath: string): Promise<FontAnalysis> {
         throw new Error(`Unsupported font format: ${ext}`);
     }
 
-    console.log('Reading font buffer...');
     let fontBuffer: Buffer | null = null;
     try {
       fontBuffer = readFileSync(filePath);
-      console.log('Font buffer size:', fontBuffer?.length || 0);
     } catch (readError) {
       console.error('Failed to read font file:', readError);
       throw new Error(`Cannot read font file: ${readError}`);
@@ -97,7 +91,6 @@ export async function analyzeFont(filePath: string): Promise<FontAnalysis> {
       isVariableFont: false,
     };
 
-    console.log('Analysis completed successfully:', analysis);
     return analysis;
   } catch (error) {
     console.error('Font analysis error:', error);

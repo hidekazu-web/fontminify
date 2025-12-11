@@ -1,10 +1,13 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import { validateIPCMessage, logSecurityEvent } from '../shared/security';
+import type { SubsetOptions } from '../shared/types';
+
+type IpcArgs = unknown[];
 
 /**
  * セキュアなIPC通信のラッパー
  */
-const secureIpcInvoke = async (channel: string, ...args: any[]): Promise<any> => {
+const secureIpcInvoke = async <T = unknown>(channel: string, ...args: IpcArgs): Promise<T> => {
   // IPCメッセージの検証
   if (!validateIPCMessage(channel, args)) {
     logSecurityEvent('INVALID_IPC_MESSAGE', { channel, args });
@@ -13,7 +16,7 @@ const secureIpcInvoke = async (channel: string, ...args: any[]): Promise<any> =>
 
   try {
     const result = await ipcRenderer.invoke(channel, ...args);
-    return result;
+    return result as T;
   } catch (error) {
     logSecurityEvent('IPC_ERROR', { channel, error });
     throw error;
@@ -23,7 +26,7 @@ const secureIpcInvoke = async (channel: string, ...args: any[]): Promise<any> =>
 /**
  * セキュアなIPC送信のラッパー
  */
-const secureIpcSend = (channel: string, ...args: any[]): void => {
+const secureIpcSend = (channel: string, ...args: IpcArgs): void => {
   // IPCメッセージの検証
   if (!validateIPCMessage(channel, args)) {
     logSecurityEvent('INVALID_IPC_MESSAGE', { channel, args });
@@ -33,6 +36,11 @@ const secureIpcSend = (channel: string, ...args: any[]): void => {
   ipcRenderer.send(channel, ...args);
 };
 
+interface SaveDialogOptions {
+  defaultPath?: string;
+  filters?: Array<{ name: string; extensions: string[] }>;
+}
+
 /**
  * セキュアなAPIの公開
  */
@@ -40,21 +48,21 @@ export const exposeSecureApi = (): void => {
   contextBridge.exposeInMainWorld('electronAPI', {
     // フォント関連API
     analyzeFont: (filePath: string) => secureIpcInvoke('font:analyze', filePath),
-    subsetFont: (options: any) => secureIpcInvoke('font:subset', options),
-    saveFont: (data: any, filePath: string) => secureIpcInvoke('font:save', data, filePath),
-    
+    subsetFont: (options: SubsetOptions) => secureIpcInvoke('font:subset', options),
+    saveFont: (data: Buffer, filePath: string) => secureIpcInvoke('font:save', data, filePath),
+
     // ダイアログAPI
-    showSaveDialog: (options: any) => secureIpcInvoke('app:show-save-dialog', options),
+    showSaveDialog: (options: SaveDialogOptions) => secureIpcInvoke('app:show-save-dialog', options),
     showErrorDialog: (title: string, content: string) => secureIpcInvoke('app:show-error-dialog', title, content),
-    
+
     // アプリケーション情報API
-    getVersion: () => secureIpcInvoke('app:get-version'),
-    
+    getVersion: () => secureIpcInvoke<string>('app:get-version'),
+
     // セキュリティ関連API
-    logSecurityEvent: (event: string, details?: any) => {
+    logSecurityEvent: (event: string, details?: Record<string, unknown>) => {
       logSecurityEvent(event, details);
     },
-    
+
     // ファイル検証API
     validateFile: (filename: string, size: number) => {
       const { validateFileExtension, validateFileSize } = require('../shared/security');
@@ -71,13 +79,13 @@ export const exposeSecureApi = (): void => {
       const { sanitizeFileName } = require('../shared/security');
       return sanitizeFileName(filename);
     },
-    
+
     validateFilePath: (filePath: string) => {
       const { validateFilePath } = require('../shared/security');
       return validateFilePath(filePath);
     },
-    
-    logEvent: (event: string, details?: any) => {
+
+    logEvent: (event: string, details?: Record<string, unknown>) => {
       logSecurityEvent(event, details);
     }
   });

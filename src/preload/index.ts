@@ -50,17 +50,15 @@ const electronAPI: ElectronAPI = {
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electronAPI', electronAPI);
-    
+
     // セキュアなAPIの公開
     exposeSecureApi();
-    
+
     // セキュリティ監視の初期化
     initializeSecurityMonitoring();
-    
-    console.log('Preload script loaded with security features');
   } catch (error) {
     console.error('Error in preload script:', error);
   }
 } else {
-  (window as any).electronAPI = electronAPI;
+  (window as unknown as { electronAPI: ElectronAPI }).electronAPI = electronAPI;
 }

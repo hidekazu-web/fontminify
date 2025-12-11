@@ -36,7 +36,7 @@ export const useSecurity = () => {
   }, []);
   
   // セキュリティイベントのログ
-  const logEvent = useCallback((event: string, details?: any) => {
+  const logEvent = useCallback((event: string, details?: Record<string, unknown>) => {
     logSecurityEvent(event, details);
   }, []);
   
