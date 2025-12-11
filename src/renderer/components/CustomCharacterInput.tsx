@@ -159,7 +159,7 @@ const CustomCharacterInput: React.FC<CustomCharacterInputProps> = ({
         <div className="bg-white border border-gray-200 rounded-md p-4 space-y-3">
           <h4 className="text-sm font-medium text-gray-800 mb-3">文字種別プレビュー</h4>
           
-          {preview.hiragana.length > 0 && (
+          {typeof preview === 'object' && preview.hiragana && preview.hiragana.length > 0 && (
             <div>
               <div className="text-xs text-gray-600 mb-1">
                 ひらがな ({preview.hiragana.length}文字)
@@ -170,7 +170,7 @@ const CustomCharacterInput: React.FC<CustomCharacterInputProps> = ({
             </div>
           )}
           
-          {preview.katakana.length > 0 && (
+          {typeof preview === 'object' && preview.katakana && preview.katakana.length > 0 && (
             <div>
               <div className="text-xs text-gray-600 mb-1">
                 カタカナ ({preview.katakana.length}文字)
@@ -181,7 +181,7 @@ const CustomCharacterInput: React.FC<CustomCharacterInputProps> = ({
             </div>
           )}
           
-          {preview.kanji.length > 0 && (
+          {typeof preview === 'object' && preview.kanji && preview.kanji.length > 0 && (
             <div>
               <div className="text-xs text-gray-600 mb-1">
                 漢字 ({preview.kanji.length}文字)
@@ -193,7 +193,7 @@ const CustomCharacterInput: React.FC<CustomCharacterInputProps> = ({
             </div>
           )}
           
-          {preview.ascii.length > 0 && (
+          {typeof preview === 'object' && preview.ascii && preview.ascii.length > 0 && (
             <div>
               <div className="text-xs text-gray-600 mb-1">
                 ASCII ({preview.ascii.length}文字)
@@ -204,7 +204,7 @@ const CustomCharacterInput: React.FC<CustomCharacterInputProps> = ({
             </div>
           )}
           
-          {preview.symbols.length > 0 && (
+          {typeof preview === 'object' && preview.symbols && preview.symbols.length > 0 && (
             <div>
               <div className="text-xs text-gray-600 mb-1">
                 記号 ({preview.symbols.length}文字)
@@ -215,7 +215,7 @@ const CustomCharacterInput: React.FC<CustomCharacterInputProps> = ({
             </div>
           )}
           
-          {preview.others.length > 0 && (
+          {typeof preview === 'object' && preview.others && preview.others.length > 0 && (
             <div>
               <div className="text-xs text-gray-600 mb-1">
                 その他 ({preview.others.length}文字)

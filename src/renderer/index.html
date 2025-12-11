@@ -3,38 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: file:; font-src 'self' data:; connect-src 'self';" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' file: 'unsafe-inline'; script-src 'self' file: 'unsafe-inline' 'unsafe-eval'; style-src 'self' file: 'unsafe-inline'; img-src 'self' data: blob: file:; font-src 'self' data: file:; connect-src 'self' file:;" />
   <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-  <meta http-equiv="X-Frame-Options" content="DENY" />
   <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
   <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
   <title>FontMinify</title>
 </head>
 <body>
   <div id="root"></div>
-  <script>
-    // シンプルなデバッグ表示
-    setTimeout(() => {
-      const status = {
-        electronAPI: !!window.electronAPI,
-        _electronAPIDebug: !!window._electronAPIDebug,
-        analyzeFont: !!window.electronAPI?.analyzeFont
-      };
-      
-      document.body.style.border = status.electronAPI ? '5px solid green' : '5px solid red';
-      
-      const statusDiv = document.createElement('div');
-      statusDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: black; color: white; padding: 20px; z-index: 9999; font-size: 16px; border: 3px solid ' + (status.electronAPI ? 'green' : 'red') + ';';
-      statusDiv.innerHTML = `
-        <h3>ElectronAPI Status</h3>
-        <p>API Available: ${status.electronAPI ? 'YES' : 'NO'}</p>
-        <p>Preload Debug: ${status._electronAPIDebug ? 'YES' : 'NO'}</p>
-        <p>analyzeFont: ${status.analyzeFont ? 'YES' : 'NO'}</p>
-        <button onclick="this.parentElement.remove()">Close</button>
-      `;
-      document.body.appendChild(statusDiv);
-    }, 2000);
-  </script>
   <script type="module" src="./main.tsx"></script>
 </body>
 </html>

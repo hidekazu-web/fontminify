@@ -8,12 +8,10 @@ import { setupIPC } from './ipc/handlers';
 
 const isDev = process.env.NODE_ENV === 'development';
 
-let mainWindow: any = null;
+let mainWindow: BrowserWindow | null = null;
 
 function createWindow(): void {
   const preloadPath = join(__dirname, 'preload.js');
-  console.log('Preload script path:', preloadPath);
-  console.log('Preload script exists:', require('fs').existsSync(preloadPath));
   
   mainWindow = new BrowserWindow({
     width: 900,
@@ -39,14 +37,27 @@ function createWindow(): void {
   // セキュリティ設定の適用
   configureBrowserWindowSecurity(mainWindow);
 
+  // エラーハンドリング（開発モード時のみ）
+  if (isDev) {
+    mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+      console.error('Failed to load:', errorCode, errorDescription, validatedURL);
+    });
+
+    mainWindow.webContents.on('render-process-gone', (event, details) => {
+      console.error('Renderer process gone:', details);
+    });
+  }
+
   // ウィンドウの表示準備完了後に表示
   mainWindow.once('ready-to-show', () => {
     if (!mainWindow) return;
     
     mainWindow.show();
     
-    // デバッグのため開発者ツールを自動的に開く
-    mainWindow.webContents.openDevTools();
+    // 開発モード時のみ開発者ツールを開く
+    if (isDev) {
+      mainWindow.webContents.openDevTools();
+    }
   });
 
   // ウィンドウが閉じられた時の処理
@@ -56,9 +67,40 @@ function createWindow(): void {
 
   // コンテンツの読み込み
   if (isDev) {
-    mainWindow.loadURL('http://localhost:5173');
+    mainWindow.loadURL('http://localhost:5175');
   } else {
-    mainWindow.loadFile(join(__dirname, '../../src/renderer/index.html'));
+    // 複数のパスを試行
+    const possiblePaths = [
+      join(__dirname, '../index.html'),
+      join(__dirname, '../../index.html'),
+      join(__dirname, '../renderer/index.html'),
+      join(process.resourcesPath, 'app', 'index.html'),
+      join(process.resourcesPath, 'app.asar', 'index.html')
+    ];
+    
+    let htmlPath = '';
+    for (const path of possiblePaths) {
+      try {
+        if (require('fs').existsSync(path)) {
+          htmlPath = path;
+          if (isDev) console.log('Found HTML at:', htmlPath);
+          break;
+        }
+      } catch (e) {
+        if (isDev) console.log('Path not accessible:', path);
+      }
+    }
+    
+    if (htmlPath) {
+      if (isDev) console.log('Loading HTML from:', htmlPath);
+      mainWindow.loadFile(htmlPath);
+    } else {
+      if (isDev) {
+        console.error('Could not find index.html in any expected location');
+        console.log('__dirname:', __dirname);
+        console.log('process.resourcesPath:', process.resourcesPath);
+      }
+    }
   }
 }
 
@@ -90,8 +132,7 @@ app.on('window-all-closed', () => {
 
 // アプリケーションがアクティブになった時の処理
 app.on('activate', () => {
-  const { BrowserWindow: BW } = require('electron');
-  if (BW.getAllWindows().length === 0) {
+  if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
 });

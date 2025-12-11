@@ -39,7 +39,7 @@ export function validateFontFile(file: File | string): FileValidationResult {
   // 拡張子バリデーション
   const extension = getFileExtension(fileName).toLowerCase();
   if (!SUPPORTED_FONT_FORMATS.includes(extension as any)) {
-    errors.push(`サポートされていないファイル形式です: ${extension}`);
+    errors.push(`サポートされていないファイル形式です`);
     errors.push(`サポート形式: ${SUPPORTED_FONT_FORMATS.join(', ')}`);
   } else {
     format = extension.replace('.', '');
@@ -163,7 +163,7 @@ export function validateFileList(fileList: FileList | File[] | string[]): {
   validCount: number;
   invalidCount: number;
 } {
-  const files = Array.from(fileList);
+  const files = Array.isArray(fileList) ? fileList : Array.from(fileList) as File[];
   const results = validateMultipleFiles(files);
   const valid = getValidFiles(results);
   const invalid = getInvalidFiles(results);
@@ -179,6 +179,24 @@ export function validateFileList(fileList: FileList | File[] | string[]): {
 
 // 追加のヘルパー関数
 export function isValidFontFile(fileName: string): boolean {
+  // 空の文字列やnull/undefinedチェック
+  if (!fileName || fileName.trim() === '') {
+    return false;
+  }
+  
+  // 拡張子のみの場合（例：".ttf"）をチェック
+  const baseName = fileName.split('/').pop() || fileName;
+  const dotIndex = baseName.lastIndexOf('.');
+  if (dotIndex === 0 || dotIndex === -1) {
+    return false;
+  }
+  
+  // 拡張子なしの場合（例："font."）をチェック
+  const nameWithoutExt = baseName.substring(0, dotIndex);
+  if (nameWithoutExt.trim() === '') {
+    return false;
+  }
+  
   const extension = getFileExtension(fileName).toLowerCase();
   return SUPPORTED_FONT_FORMATS.includes(extension as any);
 }

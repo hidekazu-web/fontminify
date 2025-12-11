@@ -52,19 +52,51 @@ const FileDropZone: React.FC = () => {
   const handleFileSelect = async () => {
     try {
       setValidationErrors([]);
-      const filePaths = await window.electronAPI.selectFiles();
-      if (filePaths && filePaths.length > 0) {
-        // ファイルパスバリデーション
-        const validation = validateFileList(filePaths);
-        
-        if (validation.invalidCount > 0) {
-          const errors = validation.invalid.flatMap(result => result.errors);
-          setValidationErrors(errors);
+      
+      // ElectronAPIが利用可能な場合
+      if (window.electronAPI && window.electronAPI.selectFiles) {
+        const filePaths = await window.electronAPI.selectFiles();
+        if (filePaths && filePaths.length > 0) {
+          // ファイルパスバリデーション
+          const validation = validateFileList(filePaths);
+          
+          if (validation.invalidCount > 0) {
+            const errors = validation.invalid.flatMap(result => result.errors);
+            setValidationErrors(errors);
+          }
+          
+          if (validation.validCount > 0) {
+            addFiles(validation.valid.map(result => result.file as string));
+          }
         }
+      } else {
+        // Web版：HTMLの input を使用
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.multiple = true;
+        input.accept = '.ttf,.otf,.woff,.woff2';
         
-        if (validation.validCount > 0) {
-          addFiles(validation.valid.map(result => result.file as string));
-        }
+        input.onchange = (e) => {
+          const files = Array.from((e.target as HTMLInputElement).files || []);
+          if (files.length > 0) {
+            // ファイルバリデーション
+            const validation = validateFileList(files);
+            
+            if (validation.invalidCount > 0) {
+              const errors = validation.invalid.flatMap(result => result.errors);
+              setValidationErrors(errors);
+            }
+            
+            if (validation.validCount > 0) {
+              const filePaths = validation.valid.map(result => 
+                (result.file as File).name
+              );
+              addFiles(filePaths);
+            }
+          }
+        };
+        
+        input.click();
       }
     } catch (error) {
       setValidationErrors(['ファイル選択中にエラーが発生しました']);

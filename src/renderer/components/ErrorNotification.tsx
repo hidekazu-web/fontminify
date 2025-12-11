@@ -20,7 +20,7 @@ const ErrorNotification: React.FC<ErrorNotificationProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   const severity = getErrorSeverity(error.type);
-  const recoverable = isRecoverableError(error);
+  const recoverable = isRecoverableError(error.type);
 
   useEffect(() => {
     if (autoHide && severity === 'low') {
@@ -49,6 +49,14 @@ const ErrorNotification: React.FC<ErrorNotificationProps> = ({
           text: 'text-yellow-700',
           button: 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800',
         };
+      case 'warning':
+        return {
+          container: 'bg-yellow-50 border-yellow-200',
+          icon: 'text-yellow-600',
+          title: 'text-yellow-800',
+          text: 'text-yellow-700',
+          button: 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800',
+        };
       case 'medium':
         return {
           container: 'bg-orange-50 border-orange-200',
@@ -56,6 +64,14 @@ const ErrorNotification: React.FC<ErrorNotificationProps> = ({
           title: 'text-orange-800',
           text: 'text-orange-700',
           button: 'bg-orange-100 hover:bg-orange-200 text-orange-800',
+        };
+      case 'error':
+        return {
+          container: 'bg-red-50 border-red-200',
+          icon: 'text-red-600',
+          title: 'text-red-800',
+          text: 'text-red-700',
+          button: 'bg-red-100 hover:bg-red-200 text-red-800',
         };
       case 'high':
         return {
@@ -116,7 +132,10 @@ const ErrorNotification: React.FC<ErrorNotificationProps> = ({
   }
 
   return (
-    <div className={`fixed top-4 right-4 max-w-md w-full border rounded-lg shadow-lg transition-all duration-300 transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'} ${styles.container}`}>
+    <div 
+      role="alert"
+      aria-live="polite"
+      className={`fixed top-4 right-4 max-w-md w-full border rounded-lg shadow-lg transition-all duration-300 transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'} ${styles.container}`}>
       <div className="p-4">
         <div className="flex items-start">
           <div className={`flex-shrink-0 ${styles.icon}`}>

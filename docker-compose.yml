@@ -1,0 +1,76 @@
+# Docker Compose file for FontMinify
+
+services:
+  fontminify-dev:
+    build: .
+    container_name: fontminify-dev
+    volumes:
+      # Mount source code for development
+      - .:/app
+      - /app/node_modules
+      # Mount test fonts directory
+      - ./test-fonts:/app/test-fonts
+      # Mount output directory
+      - ./test-output:/app/test-output
+    environment:
+      - NODE_ENV=development
+      - DISPLAY=:99
+      - ELECTRON_DISABLE_SECURITY_WARNINGS=true
+      - ENABLE_VNC=true
+    ports:
+      # VNC port for GUI access
+      - "5900:5900"
+      # noVNC web interface
+      - "6080:6080"
+      # Development server port (if needed)
+      - "5173:5173"
+    networks:
+      - fontminify-network
+    command: /start.sh
+    stdin_open: true
+    tty: true
+
+  # Test runner service
+  fontminify-test:
+    build: .
+    container_name: fontminify-test
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./test-fonts:/app/test-fonts
+      - ./test-output:/app/test-output
+    environment:
+      - NODE_ENV=test
+      - DISPLAY=:99
+      - CI=true
+    networks:
+      - fontminify-network
+    command: npm test
+    depends_on:
+      - fontminify-dev
+
+  # E2E test service
+  fontminify-e2e:
+    build: .
+    container_name: fontminify-e2e
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./test-fonts:/app/test-fonts
+      - ./test-output:/app/test-output
+    environment:
+      - NODE_ENV=test
+      - DISPLAY=:99
+      - CI=true
+    networks:
+      - fontminify-network
+    command: npm run test:e2e
+    depends_on:
+      - fontminify-dev
+
+networks:
+  fontminify-network:
+    driver: bridge
+
+volumes:
+  node_modules:

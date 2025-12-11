@@ -5,8 +5,9 @@ import { resolve } from 'path';
 export default defineConfig({
   plugins: [react()],
   base: './',
+  root: 'src/renderer',
   build: {
-    outDir: 'dist',
+    outDir: '../../dist',
     emptyOutDir: false,
     rollupOptions: {
       input: resolve(__dirname, 'src/renderer/index.html'),
@@ -22,6 +23,6 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5173,
+    port: 5175,
   },
 });

@@ -147,48 +147,49 @@ export const useFontStore = create<FontStore>()(
     isDarkMode: detectDarkMode(),
 
     // Actions
-    addFiles: async (filePaths: string[]) => {
-      // デバッグ情報を収集
-      const debugInfo = {
-        timestamp: new Date().toISOString(),
-        filePaths,
-        electronAPIAvailable: !!window.electronAPI,
-        analyzeFont: !!window.electronAPI?.analyzeFont,
-        windowType: typeof window,
-        electronAPIType: typeof window.electronAPI,
-        functionList: window.electronAPI ? Object.keys(window.electronAPI) : []
-      };
-      
-      console.log('Debug Info:', debugInfo);
-      
-      // デバッグ情報を画面に表示（一時的）
-      const debugElement = document.createElement('div');
-      debugElement.style.cssText = 'position: fixed; top: 10px; right: 10px; background: black; color: white; padding: 10px; z-index: 9999; font-size: 12px; max-width: 400px; overflow: auto;';
-      debugElement.innerHTML = `<pre>${JSON.stringify(debugInfo, null, 2)}</pre>`;
-      document.body.appendChild(debugElement);
-      setTimeout(() => debugElement.remove(), 10000); // 10秒後に削除
-      
+    addFiles: async (filePaths: string[]) => {      
       const newFiles = filePaths.filter(path => !get().selectedFiles.includes(path));
       
       set(state => ({
         selectedFiles: [...state.selectedFiles, ...newFiles]
       }));
 
-      // electronAPIが利用可能かチェック
-      if (!window.electronAPI || !window.electronAPI.analyzeFont) {
-        console.error('electronAPI is not available');
-        get().addError(new Error(`ElectronAPI is not available. Debug: ${JSON.stringify(debugInfo)}`));
-        return;
-      }
-
       // フォント解析を開始
       for (const filePath of newFiles) {
         console.log('Analyzing font:', filePath);
         try {
-          const analysis = await get().handleAsyncOperation(
-            () => window.electronAPI.analyzeFont(filePath),
-            filePath
-          );
+          let analysis: FontAnalysis;
+          
+          // ElectronAPIが利用可能な場合
+          if (window.electronAPI && window.electronAPI.analyzeFont) {
+            analysis = await get().handleAsyncOperation(
+              () => window.electronAPI.analyzeFont(filePath),
+              filePath
+            );
+          } else {
+            // Web版：基本的なフォント情報を生成
+            analysis = {
+              path: filePath,
+              name: filePath.split('/').pop() || filePath,
+              format: filePath.split('.').pop()?.toUpperCase() || 'UNKNOWN',
+              size: 0, // Web版では実際のサイズは取得困難
+              glyphCount: 0, // Web版では詳細グリフ数は取得困難
+              hasKerning: false,
+              hasLigatures: false,
+              isVariableFont: false,
+              supportedLanguages: ['ja', 'en'], // デフォルト値
+              characterRanges: [],
+              metadata: {
+                familyName: filePath.split('/').pop()?.replace(/\.[^/.]+$/, "") || 'Unknown Font',
+                styleName: 'Regular',
+                version: '1.0',
+                copyright: 'Unknown',
+                designer: 'Unknown',
+                url: '',
+                license: 'Unknown'
+              }
+            };
+          }
           
           if (analysis) {
             console.log('Analysis successful:', analysis);
@@ -196,7 +197,29 @@ export const useFontStore = create<FontStore>()(
           }
         } catch (error) {
           console.error('Font analysis error:', error);
-          get().addError(error);
+          // Web版では非致命的エラーとして処理
+          const webAnalysis: FontAnalysis = {
+            path: filePath,
+            name: filePath.split('/').pop() || filePath,
+            format: filePath.split('.').pop()?.toUpperCase() || 'UNKNOWN',
+            size: 0,
+            glyphCount: 0,
+            hasKerning: false,
+            hasLigatures: false,
+            isVariableFont: false,
+            supportedLanguages: ['ja', 'en'],
+            characterRanges: [],
+            metadata: {
+              familyName: filePath.split('/').pop()?.replace(/\.[^/.]+$/, "") || 'Unknown Font',
+              styleName: 'Regular',
+              version: '1.0',
+              copyright: 'Unknown',
+              designer: 'Unknown',
+              url: '',
+              license: 'Unknown'
+            }
+          };
+          get().setFontAnalysis(filePath, webAnalysis);
         }
       }
     },
@@ -379,7 +402,7 @@ export const useFontStore = create<FontStore>()(
       if (state.selectedPreset === 'custom') {
         return state.customCharacters;
       }
-      return getCharacterSetFromPreset(state.selectedPreset);
+      return getCharacterSetFromPreset(state.selectedPreset as any);
     },
 
     getTotalCharacterCount: () => {

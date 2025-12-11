@@ -39,8 +39,9 @@ const CharacterSetSelector: React.FC<CharacterSetSelectorProps> = ({
   };
 
   const getPresetInfo = (preset: PresetDefinition) => {
-    const estimatedSize = preset.estimatedSize < 500 ? '小' :
-                         preset.estimatedSize < 1500 ? '中' : '大';
+    const sizeValue = preset.estimatedSize || preset.characterCount;
+    const estimatedSize = sizeValue < 500 ? '小' :
+                         sizeValue < 1500 ? '中' : '大';
     
     return {
       ...preset,
@@ -115,7 +116,7 @@ const CharacterSetSelector: React.FC<CharacterSetSelectorProps> = ({
                             <h4 className={`font-medium ${
                               isSelected ? 'text-primary-700' : 'text-gray-900'
                             }`}>
-                              {preset.label}
+                              {preset.label || preset.name}
                             </h4>
                             <p className="text-sm text-gray-600 mt-1">
                               {preset.description}
@@ -128,7 +129,7 @@ const CharacterSetSelector: React.FC<CharacterSetSelectorProps> = ({
                         <div className={`text-lg font-semibold ${
                           isSelected ? 'text-primary-600' : 'text-gray-700'
                         }`}>
-                          {preset.estimatedSize.toLocaleString()}
+                          {(preset.estimatedSize || preset.characterCount).toLocaleString()}
                         </div>
                         <div className="text-xs text-gray-500">文字</div>
                         <div className={`text-xs px-2 py-1 rounded-full mt-1 ${
@@ -193,13 +194,13 @@ const CharacterSetSelector: React.FC<CharacterSetSelectorProps> = ({
             <div className="text-sm">
               <span className="text-gray-600">プリセット: </span>
               <span className="font-medium text-gray-900">
-                {CHARACTER_PRESETS.find(p => p.id === selectedPreset)?.label}
+                {CHARACTER_PRESETS.find(p => p.id === selectedPreset)?.label || CHARACTER_PRESETS.find(p => p.id === selectedPreset)?.name}
               </span>
             </div>
             <div className="text-sm">
               <span className="text-gray-600">文字数: </span>
               <span className="font-medium text-primary-600">
-                {CHARACTER_PRESETS.find(p => p.id === selectedPreset)?.estimatedSize.toLocaleString()}文字
+                {(CHARACTER_PRESETS.find(p => p.id === selectedPreset)?.estimatedSize || CHARACTER_PRESETS.find(p => p.id === selectedPreset)?.characterCount || 0).toLocaleString()}文字
               </span>
             </div>
           </div>

@@ -2,78 +2,120 @@ import { CHARACTER_SETS } from './constants';
 import { CharacterSetPreset, CharCategory } from './types';
 
 export interface PresetDefinition {
-  id: CharacterSetPreset;
-  label: string;
+  id: CharacterSetPreset | 'minimum' | 'basic' | 'standard' | 'extended' | 'full';
+  name: string;
   description: string;
   characters: string;
-  estimatedSize: number; // 文字数
+  characterCount: number; // 文字数
   categories: CharCategory[];
+  label?: string; // UI表示用ラベル
+  estimatedSize?: number; // 推定ファイルサイズ（KB）
 }
 
 export const CHARACTER_PRESETS: PresetDefinition[] = [
   {
-    id: 'hiragana-katakana',
-    label: 'ひらがな・カタカナ',
-    description: 'ひらがな・カタカナのみ（146文字）',
-    characters: CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana,
-    estimatedSize: 146,
-    categories: ['hiragana', 'katakana'],
+    id: 'minimum',
+    name: '最小セット',
+    description: 'ひらがな・カタカナ・英数字・基本記号',
+    characters: CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana + CHARACTER_SETS.ascii,
+    characterCount: new Set(CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana + CHARACTER_SETS.ascii).size,
+    categories: ['hiragana', 'katakana', 'ascii'],
   },
   {
-    id: 'ascii',
-    label: 'ASCII文字',
-    description: '英数字・記号のみ（95文字）',
-    characters: CHARACTER_SETS.ascii,
-    estimatedSize: 95,
-    categories: ['ascii'],
+    id: 'basic',
+    name: '基本セット',
+    description: '最小セット + N5レベル漢字',
+    characters: CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana + CHARACTER_SETS.ascii + CHARACTER_SETS.kanjiN5,
+    characterCount: new Set(CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana + CHARACTER_SETS.ascii + CHARACTER_SETS.kanjiN5).size,
+    categories: ['hiragana', 'katakana', 'ascii', 'kanji-basic'],
+  },
+  {
+    id: 'standard',
+    name: '標準セット',
+    description: '基本セット + N4レベル漢字',
+    characters: CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana + CHARACTER_SETS.ascii + CHARACTER_SETS.kanjiN5 + CHARACTER_SETS.kanjiN4,
+    characterCount: new Set(CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana + CHARACTER_SETS.ascii + CHARACTER_SETS.kanjiN5 + CHARACTER_SETS.kanjiN4).size,
+    categories: ['hiragana', 'katakana', 'ascii', 'kanji-standard'],
+  },
+  {
+    id: 'extended',
+    name: '拡張セット',
+    description: '標準セット + N3レベル漢字',
+    characters: CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana + CHARACTER_SETS.ascii + CHARACTER_SETS.kanjiN5 + CHARACTER_SETS.kanjiN4 + CHARACTER_SETS.kanjiN3,
+    characterCount: new Set(CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana + CHARACTER_SETS.ascii + CHARACTER_SETS.kanjiN5 + CHARACTER_SETS.kanjiN4 + CHARACTER_SETS.kanjiN3).size,
+    categories: ['hiragana', 'katakana', 'ascii', 'kanji-advanced'],
+  },
+  {
+    id: 'full',
+    name: 'フルセット',
+    description: '拡張セット + 常用漢字',
+    characters: CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana + CHARACTER_SETS.ascii + CHARACTER_SETS.kanjiN5 + CHARACTER_SETS.kanjiN4 + CHARACTER_SETS.kanjiN3 + CHARACTER_SETS.kanjiJoyo,
+    characterCount: new Set(CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana + CHARACTER_SETS.ascii + CHARACTER_SETS.kanjiN5 + CHARACTER_SETS.kanjiN4 + CHARACTER_SETS.kanjiN3 + CHARACTER_SETS.kanjiJoyo).size,
+    categories: ['hiragana', 'katakana', 'ascii', 'kanji-complete'],
   },
   {
     id: 'kanji-n5',
-    label: 'JLPT N5漢字',
-    description: '最も基本的な漢字（約100文字）',
+    name: 'JLPT N5漢字',
+    description: '最も基本的な漢字',
     characters: CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana + CHARACTER_SETS.kanjiN5 + CHARACTER_SETS.ascii,
-    estimatedSize: 341,
+    characterCount: new Set(CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana + CHARACTER_SETS.kanjiN5 + CHARACTER_SETS.ascii).size,
     categories: ['hiragana', 'katakana', 'ascii', 'kanji-basic'],
   },
   {
     id: 'kanji-n4',
-    label: 'JLPT N4漢字',
-    description: 'N5 + N4レベルの漢字（約300文字）',
+    name: 'JLPT N4漢字',
+    description: 'N5 + N4レベルの漢字',
     characters: CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana + CHARACTER_SETS.kanjiN4 + CHARACTER_SETS.ascii,
-    estimatedSize: 541,
+    characterCount: new Set(CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana + CHARACTER_SETS.kanjiN4 + CHARACTER_SETS.ascii).size,
     categories: ['hiragana', 'katakana', 'ascii', 'kanji-basic'],
   },
   {
     id: 'kanji-n3',
-    label: 'JLPT N3漢字',
-    description: 'N5-N3レベルの漢字（約650文字）',
+    name: 'JLPT N3漢字',
+    description: 'N5-N3レベルの漢字',
     characters: CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana + CHARACTER_SETS.kanjiN3 + CHARACTER_SETS.ascii,
-    estimatedSize: 891,
+    characterCount: new Set(CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana + CHARACTER_SETS.kanjiN3 + CHARACTER_SETS.ascii).size,
     categories: ['hiragana', 'katakana', 'ascii', 'kanji-standard'],
   },
   {
     id: 'kanji-joyo',
-    label: '常用漢字',
-    description: '小中学校で学ぶ漢字（約1000文字）',
+    name: '常用漢字',
+    description: '小中学校で学ぶ漢字',
     characters: CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana + CHARACTER_SETS.kanjiJoyo + CHARACTER_SETS.ascii,
-    estimatedSize: 1291,
+    characterCount: new Set(CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana + CHARACTER_SETS.kanjiJoyo + CHARACTER_SETS.ascii).size,
     categories: ['hiragana', 'katakana', 'ascii', 'kanji-standard'],
   },
   {
+    id: 'hiragana-katakana',
+    name: 'ひらがな・カタカナ',
+    description: 'ひらがな・カタカナのみ',
+    characters: CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana,
+    characterCount: new Set(CHARACTER_SETS.hiragana + CHARACTER_SETS.katakana).size,
+    categories: ['hiragana', 'katakana'],
+  },
+  {
+    id: 'ascii',
+    name: 'ASCII文字',
+    description: '英数字・記号のみ',
+    characters: CHARACTER_SETS.ascii,
+    characterCount: new Set(CHARACTER_SETS.ascii).size,
+    categories: ['ascii'],
+  },
+  {
     id: 'custom',
-    label: 'カスタム',
+    name: 'カスタム',
     description: '独自の文字セット',
     characters: '',
-    estimatedSize: 0,
+    characterCount: 0,
     categories: [],
   },
 ];
 
-export function getPresetDefinition(id: CharacterSetPreset): PresetDefinition | undefined {
+export function getPresetDefinition(id: string): PresetDefinition | undefined {
   return CHARACTER_PRESETS.find(preset => preset.id === id);
 }
 
-export function getCharacterSetFromPreset(preset: CharacterSetPreset): string {
+export function getCharacterSetFromPreset(preset: string): string {
   const definition = getPresetDefinition(preset);
   return definition?.characters || '';
 }

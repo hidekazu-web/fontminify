@@ -52,12 +52,27 @@ export async function subsetFont(
       desubroutinize: false,
     };
 
-    const subsetBuffer = await subsetFontLib(fontBuffer, {
-      text: characterSet,
-      targetFormat: options.outputFormat,
-      hinting: !options.removeHinting,
-      desubroutinize: options.desubroutinize
-    });
+    let subsetBuffer: Buffer;
+    try {
+      console.log('サブセット化開始:', {
+        text: characterSet.slice(0, 50) + (characterSet.length > 50 ? '...' : ''),
+        textLength: characterSet.length,
+        targetFormat: options.outputFormat,
+        bufferSize: fontBuffer.length
+      });
+      
+      // subset-fontの正しい使用方法
+      subsetBuffer = await subsetFontLib(fontBuffer, characterSet, {
+        targetFormat: options.outputFormat || 'woff2',
+        preserveHinting: !options.removeHinting,
+        desubroutinize: options.desubroutinize || false
+      });
+      
+      console.log('サブセット化完了:', subsetBuffer.length, 'bytes');
+    } catch (subsetError: any) {
+      console.error('サブセット化エラー:', subsetError);
+      throw new Error(`フォントサブセット化に失敗しました: ${subsetError.message || 'unknown error'}`);
+    }
 
     // プログレス更新: 最適化
     progressCallback({
@@ -149,7 +164,8 @@ export async function estimateSubsetSize(
     const originalSize = fontBuffer.length;
     
     // 簡易的なサイズ推定（実際の文字数比率ベース）
-    const fontOrCollection = await import('fontkit').then(kit => kit.openSync(fontBuffer as any));
+    const fontkit = await import('fontkit');
+    const fontOrCollection = fontkit.openSync(fontBuffer as any);
     const font = 'fonts' in fontOrCollection ? fontOrCollection.fonts[0] : fontOrCollection;
     const totalGlyphs = (font as any).numGlyphs;
     const usedGlyphs = new Set(characterSet).size;

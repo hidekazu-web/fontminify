@@ -46,7 +46,7 @@ export function initializeAutoUpdater(): void {
   }
 
   // アップデートが利用可能な場合
-  autoUpdater.on('update-available', (updateInfo) => {
+  autoUpdater.on('update-available', (updateInfo: any) => {
     console.log('アップデートが利用可能です:', updateInfo.version);
     
     if (mainWindow) {
@@ -61,12 +61,12 @@ export function initializeAutoUpdater(): void {
   });
 
   // アップデートが利用不可能な場合
-  autoUpdater.on('update-not-available', (updateInfo) => {
+  autoUpdater.on('update-not-available', (updateInfo: any) => {
     console.log('最新バージョンを使用中です:', updateInfo.version);
   });
 
   // ダウンロード進捗
-  autoUpdater.on('download-progress', (progressObj) => {
+  autoUpdater.on('download-progress', (progressObj: any) => {
     const logMessage = `ダウンロード進捗: ${progressObj.percent.toFixed(2)}% (${progressObj.transferred}/${progressObj.total})`;
     console.log(logMessage);
     
@@ -81,7 +81,7 @@ export function initializeAutoUpdater(): void {
   });
 
   // ダウンロード完了
-  autoUpdater.on('update-downloaded', (updateInfo) => {
+  autoUpdater.on('update-downloaded', (updateInfo: any) => {
     console.log('アップデートのダウンロードが完了しました:', updateInfo.version);
     
     if (mainWindow) {
@@ -103,7 +103,7 @@ export function initializeAutoUpdater(): void {
   });
 
   // エラーハンドリング
-  autoUpdater.on('error', (error) => {
+  autoUpdater.on('error', (error: any) => {
     console.error('自動アップデートエラー:', error);
     
     if (mainWindow) {
@@ -128,7 +128,7 @@ export function checkForUpdates(): void {
   }
 
   console.log('アップデートをチェック中...');
-  autoUpdater.checkForUpdatesAndNotify().catch((error) => {
+  autoUpdater.checkForUpdatesAndNotify().catch((error: any) => {
     console.error('アップデートチェックに失敗:', error);
   });
 }
@@ -152,7 +152,7 @@ export function manualUpdateCheck(): void {
   console.log('手動アップデートチェックを開始...');
   
   autoUpdater.checkForUpdates()
-    .then((result) => {
+    .then((result: any) => {
       if (!result || !result.updateInfo) {
         if (mainWindow) {
           dialog.showMessageBox(mainWindow, {
@@ -165,7 +165,7 @@ export function manualUpdateCheck(): void {
         }
       }
     })
-    .catch((error) => {
+    .catch((error: any) => {
       console.error('手動アップデートチェックに失敗:', error);
       
       if (mainWindow) {

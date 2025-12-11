@@ -16,7 +16,7 @@ export enum IPCChannel {
 export interface FontAnalysis {
   fileName: string;
   fileSize: number;
-  format: 'ttf' | 'otf' | 'woff' | 'woff2';
+  format: 'ttf' | 'otf' | 'woff' | 'woff2' | 'ttc';
   fontFamily: string;
   fontSubfamily: string;
   version: string;
@@ -67,6 +67,8 @@ export type CharCategory =
   | 'symbols' 
   | 'kanji-basic' 
   | 'kanji-standard' 
+  | 'kanji-advanced'
+  | 'kanji-complete'
   | 'kanji-jis1';
 
 export interface SubsetOptions {

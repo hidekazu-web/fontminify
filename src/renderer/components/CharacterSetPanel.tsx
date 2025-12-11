@@ -36,38 +36,74 @@ const CharacterSetPanel: React.FC = () => {
           subsetOptions.outputFormat || 'woff2'
         );
         
-        // 保存先選択ダイアログを表示
-        const outputPath = await handleAsyncOperation(
-          () => window.electronAPI.saveFileDialog(
-            defaultFileName,
-            subsetOptions.outputFormat || 'woff2'
-          ),
-          filePath
-        );
+        let outputPath: string | null = null;
+        let result: any = null;
+        
+        // ElectronAPIが利用可能な場合
+        if (window.electronAPI && window.electronAPI.showSaveDialog && window.electronAPI.subsetFont) {
+          // 保存先選択ダイアログを表示
+          outputPath = await handleAsyncOperation(
+            () => window.electronAPI.showSaveDialog(
+              defaultFileName,
+              subsetOptions.outputFormat || 'woff2'
+            ),
+            filePath
+          );
 
-        if (!outputPath) {
-          // ユーザーがキャンセルした場合
-          continue;
-        }
+          if (!outputPath) {
+            // ユーザーがキャンセルした場合
+            continue;
+          }
 
-        // サブセット処理を実行
-        const result = await handleAsyncOperation(
-          () => window.electronAPI.subsetFont({
-            inputPath: filePath,
-            outputPath,
-            preset: subsetOptions.preset,
-            customCharacters: subsetOptions.customCharacters,
-            outputFormat: subsetOptions.outputFormat,
-            enableWoff2Compression: subsetOptions.enableWoff2Compression,
-            compressionLevel: subsetOptions.compressionLevel,
-            removeHinting: subsetOptions.removeHinting,
-            desubroutinize: subsetOptions.desubroutinize,
-          }),
-          filePath
-        );
+          // サブセット処理を実行
+          result = await handleAsyncOperation(
+            () => window.electronAPI.subsetFont({
+              inputPath: filePath,
+              outputPath,
+              preset: subsetOptions.preset,
+              customCharacters: subsetOptions.customCharacters,
+              outputFormat: subsetOptions.outputFormat,
+              enableWoff2Compression: subsetOptions.enableWoff2Compression,
+              compressionLevel: subsetOptions.compressionLevel,
+              removeHinting: subsetOptions.removeHinting,
+              desubroutinize: subsetOptions.desubroutinize,
+            }),
+            filePath
+          );
 
-        if (result) {
-          console.log(`Font processing completed: ${outputPath}`);
+          if (result) {
+            console.log(`Font processing completed: ${outputPath}`);
+          }
+        } else {
+          // Web版：デモ用処理
+          console.log('Web版デモモード: ElectronAPIが利用できません');
+          
+          // デモ用の処理時間（実際の処理をシミュレート）
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          // デモ用の結果をダウンロード
+          const demoContent = `FontMinify Web版デモ
+
+処理されたファイル: ${filePath}
+出力ファイル名: ${defaultFileName}
+選択された文字セット: ${subsetOptions.preset || 'カスタム'}
+出力形式: ${subsetOptions.outputFormat || 'woff2'}
+
+注意: これはデモ版です。実際のフォント処理にはElectronデスクトップ版をお使いください。
+`;
+          
+          // Blobとしてダウンロード
+          const blob = new Blob([demoContent], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = defaultFileName.replace(/\.(woff2|woff|ttf|otf)$/, '_demo.txt');
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          
+          console.log(`デモファイル生成完了: ${defaultFileName}`);
         }
       }
     } finally {

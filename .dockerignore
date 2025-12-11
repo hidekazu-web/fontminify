@@ -1,0 +1,58 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+build/
+dist/
+out/
+
+# Test results
+test-results/
+coverage/
+
+# Development files
+debug-electron.js
+simple-electron.js
+test-electron.js
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# Environment
+.env*
+
+# Logs
+*.log
+logs/
+
+# Screenshots (except icons)
+*.png
+*.jpg
+*.jpeg
+!assets/**/*.png
+!assets/**/*.jpg
+!assets/**/*.jpeg
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Packaging
+*.dmg
+*.pkg
+*.zip
