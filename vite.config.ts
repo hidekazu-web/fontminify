@@ -7,7 +7,7 @@ export default defineConfig({
   base: './',
   root: 'src/renderer',
   build: {
-    outDir: '../../dist',
+    outDir: '../../dist/renderer',
     emptyOutDir: false,
     rollupOptions: {
       input: resolve(__dirname, 'src/renderer/index.html'),
