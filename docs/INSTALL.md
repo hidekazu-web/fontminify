@@ -14,39 +14,9 @@ FontMinifyをmacOSにインストールする方法を説明します。
 
 ## 初回起動時の注意
 
-FontMinifyは現在Apple Developer Programによる署名・公証を行っていないため、初回起動時にmacOSのセキュリティ警告が表示されます。以下のいずれかの方法で起動できます。
+FontMinifyは現在Apple Developer Programによる署名・公証を行っていないため、初回起動時にmacOSのセキュリティ警告が表示されます。
 
----
-
-### 方法1: 右クリックで開く（macOS Sonoma 14以前）
-
-1. Finderで`Applications`フォルダを開く
-2. **FontMinify.appを右クリック**（またはControl+クリック）
-3. メニューから**「開く」**を選択
-4. 警告ダイアログが表示されたら**「開く」**をクリック
-
-> **注意**: macOS Sequoia (15) 以降ではこの方法は使用できません。方法2を使用してください。
-
----
-
-### 方法2: システム設定から許可（推奨・全バージョン対応）
-
-macOS Sequoia / Sonoma / Ventura 共通の方法です。
-
-1. FontMinify.appをダブルクリック（警告が表示される）
-2. **システム設定**を開く
-3. **プライバシーとセキュリティ**をクリック
-4. 下にスクロールして「FontMinifyは開発元を確認できないため...」というメッセージを探す
-5. **「このまま開く」**をクリック
-6. パスワードを入力して許可
-
-> 2回目以降は通常のダブルクリックで起動できます。
-
----
-
-### 方法3: ターミナルで属性を削除（上級者向け）
-
-上記の方法で解決しない場合、ターミナルを使用します。
+### ターミナルで属性を削除
 
 1. **ターミナル**を開く（Spotlight検索で「ターミナル」と入力）
 2. 以下のコマンドを実行:
@@ -56,8 +26,6 @@ xattr -dr com.apple.quarantine /Applications/FontMinify.app
 ```
 
 3. FontMinify.appをダブルクリックで起動
-
----
 
 ## アンインストール
 
@@ -85,7 +53,7 @@ rm -rf ~/Library/Preferences/com.fontminify.app.plist
 
 ### 「壊れているため開けません」と表示される
 
-quarantine属性が原因です。方法3のターミナルコマンドを実行してください:
+quarantine属性が原因です。上記のターミナルコマンドを実行してください:
 
 ```bash
 xattr -dr com.apple.quarantine /Applications/FontMinify.app

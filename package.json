@@ -19,6 +19,9 @@
     "build:preload": "tsc -p tsconfig.preload.json",
     "dist": "npm run build && electron-builder",
     "dist:mac": "npm run build && electron-builder --mac",
+    "dist:mac:arm64": "npm run build && electron-builder --mac --arm64",
+    "dist:mac:x64": "npm run build && electron-builder --mac --x64",
+    "dist:win": "npm run build && electron-builder --win",
     "dist:unsigned": "npm run build && npx electron-builder --mac --publish=never --config.mac.identity=null",
     "dmg": "./scripts/build-dmg.sh",
     "dmg:clean": "./scripts/build-dmg-clean.sh",
@@ -144,6 +147,24 @@
           "type": "file"
         }
       ]
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     }
   }
 }
