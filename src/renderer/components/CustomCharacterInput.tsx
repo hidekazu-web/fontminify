@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useFontStore } from '../stores/fontStore';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface CustomCharacterInputProps {
   onCharacterSetChange: (characters: string) => void;
@@ -16,26 +15,30 @@ const CustomCharacterInput: React.FC<CustomCharacterInputProps> = ({
   const [duplicateCount, setDuplicateCount] = useState(0);
   const [showPreview, setShowPreview] = useState(false);
 
+  // コールバックをrefで保持して無限ループを防止
+  const onCharacterSetChangeRef = useRef(onCharacterSetChange);
+  onCharacterSetChangeRef.current = onCharacterSetChange;
+
   // 入力テキストから重複を除去してユニークな文字を抽出
   useEffect(() => {
     if (inputText) {
       const chars = Array.from(inputText);
       const uniqueSet = new Set(chars);
       const uniqueArray = Array.from(uniqueSet);
-      
+
       setUniqueChars(uniqueArray);
       setCharCount(uniqueArray.length);
       setDuplicateCount(chars.length - uniqueArray.length);
-      
+
       // 親コンポーネントに文字セットを通知
-      onCharacterSetChange(uniqueArray.join(''));
+      onCharacterSetChangeRef.current(uniqueArray.join(''));
     } else {
       setUniqueChars([]);
       setCharCount(0);
       setDuplicateCount(0);
-      onCharacterSetChange('');
+      onCharacterSetChangeRef.current('');
     }
-  }, [inputText, onCharacterSetChange]);
+  }, [inputText]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputText(e.target.value);

@@ -5,7 +5,7 @@ const Header: React.FC = () => {
   const { isDarkMode, toggleDarkMode } = useFontStore();
 
   return (
-    <header className="bg-gradient-to-r from-primary-500 to-secondary-500 dark:from-gray-800 dark:to-gray-900 text-white px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+    <header className="bg-gradient-to-r from-primary-500 to-secondary-500 dark:from-primary-700 dark:to-secondary-700 text-white px-6 pt-8 pb-4 border-b border-gray-200 dark:border-gray-600 flex-shrink-0">
       <div className="flex justify-between items-center">
         <div className="app-title">
           <h1 className="text-2xl font-semibold mb-1">FontMinify</h1>
