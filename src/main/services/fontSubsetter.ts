@@ -76,14 +76,25 @@ async function performSubset(
     requestedFormat: options.outputFormat,
     targetFormat: targetFormat,
     bufferSize: fontBuffer.length,
+    pinVariationAxes: options.pinVariationAxes,
+    variationAxes: options.variationAxes,
   });
 
   try {
-    const subsetFontBuffer = await subsetFontLib(fontBuffer, characterSet, {
+    // subset-fontのオプションを構築
+    const subsetOptions: Record<string, unknown> = {
       targetFormat: targetFormat,
       preserveHinting: !options.removeHinting,
       desubroutinize: options.desubroutinize || false,
-    });
+    };
+
+    // バリアブルフォントの軸値を固定する場合
+    if (options.pinVariationAxes && options.variationAxes) {
+      subsetOptions.variationAxes = options.variationAxes;
+      console.log('バリアブルフォント軸を固定:', options.variationAxes);
+    }
+
+    const subsetFontBuffer = await subsetFontLib(fontBuffer, characterSet, subsetOptions);
 
     console.log('サブセット化完了:', subsetFontBuffer.length, 'bytes');
     return subsetFontBuffer;

@@ -1,6 +1,7 @@
-import { FontAnalysis, CharacterRange, OpenTypeFeature } from '../../shared/types';
+import { FontAnalysis, CharacterRange, OpenTypeFeature, VariableAxis } from '../../shared/types';
 import { readFileSync, statSync, existsSync } from 'fs';
 import { extname, basename } from 'path';
+import * as fontkit from 'fontkit';
 
 export async function analyzeFont(filePath: string): Promise<FontAnalysis> {
   try {
@@ -66,35 +67,77 @@ export async function analyzeFont(filePath: string): Promise<FontAnalysis> {
       throw new Error('Font file is empty or unreadable');
     }
     
-    // フォントのメタデータを取得
-    let fontFamily: string;
-    let glyphCount: number;
-    
-    if (format === 'ttc') {
-      // TTCフォーマット（フォントコレクション）の処理
-      fontFamily = extractTTCFontName(fontBuffer) || fileName.replace(ext, '') || 'Unknown Font Collection';
-      glyphCount = estimateTTCGlyphCount(fontBuffer);
-    } else {
-      // 通常のフォントファイルの処理
-      fontFamily = extractFontName(fontBuffer) || fileName.replace(ext, '') || 'Unknown Font';
-      glyphCount = estimateGlyphCount(fontBuffer);
+    // fontkitを使用してフォント情報を解析
+    let fontFamily = fileName.replace(ext, '') || 'Unknown Font';
+    let fontSubfamily = 'Regular';
+    let version = '1.0';
+    let glyphCount = 0;
+    let isVariableFont = false;
+    let variableAxes: VariableAxis[] | undefined;
+
+    try {
+      const fontOrCollection = fontkit.openSync(fontBuffer);
+      const font = 'fonts' in fontOrCollection ? fontOrCollection.fonts[0] : fontOrCollection;
+
+      fontFamily = font.familyName || font.fullName || fontFamily;
+      fontSubfamily = font.subfamilyName || 'Regular';
+      version = font.version || '1.0';
+      glyphCount = font.numGlyphs || estimateGlyphCount(fontBuffer);
+
+      // バリアブルフォントの検出
+      if (font.variationAxes) {
+        const axes = font.variationAxes;
+        if (Array.isArray(axes) && axes.length > 0) {
+          isVariableFont = true;
+          variableAxes = axes.map(axis => ({
+            tag: axis.tag,
+            name: axis.name,
+            min: axis.min,
+            max: axis.max,
+            default: axis.default,
+          }));
+        } else if (typeof axes === 'object' && Object.keys(axes).length > 0) {
+          // Record形式の場合
+          isVariableFont = true;
+          variableAxes = Object.entries(axes).map(([tag, info]) => ({
+            tag,
+            name: info.name,
+            min: info.min,
+            max: info.max,
+            default: info.default,
+          }));
+        }
+      }
+
+      console.log('Fontkit analysis:', { fontFamily, fontSubfamily, glyphCount, isVariableFont, axesCount: variableAxes?.length || 0 });
+    } catch (fontkitError) {
+      console.warn('Fontkit analysis failed, using fallback:', fontkitError);
+      // フォールバック処理
+      if (format === 'ttc') {
+        fontFamily = extractTTCFontName(fontBuffer) || fontFamily;
+        glyphCount = estimateTTCGlyphCount(fontBuffer);
+      } else {
+        fontFamily = extractFontName(fontBuffer) || fontFamily;
+        glyphCount = estimateGlyphCount(fontBuffer);
+      }
     }
-    
+
     const characterRanges = getDefaultCharacterRanges();
-    
+
     const analysis: FontAnalysis = {
       fileName,
       fileSize,
       format,
       fontFamily,
-      fontSubfamily: 'Regular',
-      version: '1.0',
+      fontSubfamily,
+      version,
       glyphCount,
       characterRanges,
       features: [],
       languages: ['ja', 'en'],
       hasColorEmoji: false,
-      isVariableFont: false,
+      isVariableFont,
+      axes: variableAxes,
     };
 
     console.log('Analysis completed successfully:', analysis);

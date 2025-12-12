@@ -40,6 +40,11 @@ export interface FontStoreActions {
   setDragOverState: (dragOver: boolean) => void;
   setDarkMode: (isDark: boolean) => void;
   toggleDarkMode: () => void;
+
+  // バリアブルフォント操作
+  setVariationAxesValues: (values: Record<string, number>) => void;
+  setPinVariationAxes: (pin: boolean) => void;
+  resetVariationAxesToDefaults: (axes: { tag: string; default: number }[]) => void;
 }
 
 type SetState = (partial: Partial<FontStoreState> | ((state: FontStoreState) => Partial<FontStoreState>)) => void;
@@ -230,7 +235,7 @@ export function createErrorActions(set: SetState, get: GetState): Pick<FontStore
 /**
  * UI操作アクションを作成
  */
-export function createUIActions(set: SetState, get: GetState): Pick<FontStoreActions, 'setSelectedPreset' | 'setCustomCharacters' | 'setShowAdvancedOptions' | 'setDragOverState' | 'setDarkMode' | 'toggleDarkMode'> {
+export function createUIActions(set: SetState, get: GetState): Pick<FontStoreActions, 'setSelectedPreset' | 'setCustomCharacters' | 'setShowAdvancedOptions' | 'setDragOverState' | 'setDarkMode' | 'toggleDarkMode' | 'setVariationAxesValues' | 'setPinVariationAxes' | 'resetVariationAxesToDefaults'> {
   return {
     setSelectedPreset: (preset: string) => {
       set({ selectedPreset: preset });
@@ -275,6 +280,34 @@ export function createUIActions(set: SetState, get: GetState): Pick<FontStoreAct
     toggleDarkMode: () => {
       const currentMode = get().isDarkMode;
       get().setDarkMode(!currentMode);
+    },
+
+    setVariationAxesValues: (values: Record<string, number>) => {
+      set({ variationAxesValues: values });
+      // サブセットオプションにも反映
+      if (get().pinVariationAxes) {
+        get().updateSubsetOptions({ variationAxes: values });
+      }
+    },
+
+    setPinVariationAxes: (pin: boolean) => {
+      set({ pinVariationAxes: pin });
+      // サブセットオプションにも反映
+      get().updateSubsetOptions({
+        pinVariationAxes: pin,
+        variationAxes: pin ? get().variationAxesValues : undefined,
+      });
+    },
+
+    resetVariationAxesToDefaults: (axes: { tag: string; default: number }[]) => {
+      const defaultValues: Record<string, number> = {};
+      axes.forEach((axis) => {
+        defaultValues[axis.tag] = axis.default;
+      });
+      set({ variationAxesValues: defaultValues });
+      if (get().pinVariationAxes) {
+        get().updateSubsetOptions({ variationAxes: defaultValues });
+      }
     },
   };
 }

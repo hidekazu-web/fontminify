@@ -84,6 +84,9 @@ export interface SubsetOptions {
     optimizeCFF: boolean;
     transformGlyf: boolean;
   };
+  // バリアブルフォント用オプション
+  variationAxes?: Record<string, number>; // { wght: 400, wdth: 100 }
+  pinVariationAxes?: boolean; // 軸値を固定してサイズ削減するか
 }
 
 export type OutputFormat = 'woff2' | 'woff' | 'ttf' | 'otf';

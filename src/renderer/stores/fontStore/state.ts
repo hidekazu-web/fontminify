@@ -39,6 +39,10 @@ export interface FontStoreState {
   showAdvancedOptions: boolean;
   isDragOver: boolean;
   isDarkMode: boolean;
+
+  // バリアブルフォント状態
+  variationAxesValues: Record<string, number>;
+  pinVariationAxes: boolean;
 }
 
 /**
@@ -75,5 +79,9 @@ export function createInitialState(isDarkMode: boolean): FontStoreState {
     showAdvancedOptions: false,
     isDragOver: false,
     isDarkMode,
+
+    // バリアブルフォント状態
+    variationAxesValues: {},
+    pinVariationAxes: true,
   };
 }
