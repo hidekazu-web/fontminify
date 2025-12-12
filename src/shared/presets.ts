@@ -2,7 +2,7 @@ import { CHARACTER_SETS } from './constants';
 import { CharacterSetPreset, CharCategory } from './types';
 
 export interface PresetDefinition {
-  id: CharacterSetPreset | 'minimum' | 'standard' | 'custom';
+  id: CharacterSetPreset | 'minimum' | 'standard' | 'joyo-jis1' | 'custom';
   name: string;
   description: string;
   characters: string;
@@ -44,9 +44,11 @@ function buildPreset(config: PresetConfig): PresetDefinition {
 }
 
 /**
- * プリセット設定の定義（シンプル化）
+ * プリセット設定の定義
+ * 参照: https://u-618.org/webfont-subset/
  * - 最小: ひらがな・カタカナ・ASCII・全角記号（漢字なし）
- * - 標準: 最小 + 常用漢字2136字（推奨、デフォルト）
+ * - 標準: 最小 + 常用漢字2136字
+ * - 常用漢字＋第一水準その他: 常用漢字＋JIS第1水準（約3700字、推奨、デフォルト）
  */
 const PRESET_CONFIGS: PresetConfig[] = [
   {
@@ -58,10 +60,17 @@ const PRESET_CONFIGS: PresetConfig[] = [
   },
   {
     id: 'standard',
-    name: '標準セット（推奨）',
+    name: '標準セット',
     description: '最小セット + 常用漢字2136字',
     sets: ['hiragana', 'katakana', 'ascii', 'japaneseSymbols', 'fullwidthAlphanumeric', 'joyoKanji'],
     categories: ['hiragana', 'katakana', 'ascii', 'symbols', 'kanji-standard'],
+  },
+  {
+    id: 'joyo-jis1',
+    name: '常用漢字＋第一水準その他（推奨）',
+    description: '常用漢字＋JIS第1水準漢字（約3700字）',
+    sets: ['hiragana', 'katakana', 'ascii', 'japaneseSymbols', 'fullwidthAlphanumeric', 'joyoKanji', 'jis1Kanji'],
+    categories: ['hiragana', 'katakana', 'ascii', 'symbols', 'kanji-standard', 'kanji-jis1'],
   },
 ];
 

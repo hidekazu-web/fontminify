@@ -30,7 +30,7 @@ export function useFontProcessing(options: UseFontProcessingOptions = {}): UseFo
     executeWithErrorHandling,
   } = useFontStore();
 
-  const [selectedPreset, setSelectedPreset] = useState<string | undefined>('standard');
+  const [selectedPreset, setSelectedPreset] = useState<string | undefined>('joyo-jis1');
   const [customCharacters, setCustomCharacters] = useState<string>('');
 
   /**

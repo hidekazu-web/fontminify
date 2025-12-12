@@ -6,6 +6,7 @@ import {
   FULLWIDTH_ALPHANUMERIC,
   JAPANESE_SYMBOLS,
   JOYO_KANJI,
+  JIS1_KANJI,
 } from './charsets';
 
 // 文字セットプリセット定義
@@ -21,6 +22,7 @@ export const CHARACTER_SETS = {
 
   // 漢字
   joyoKanji: JOYO_KANJI,
+  jis1Kanji: JIS1_KANJI,
 } as const;
 
 export const SUPPORTED_FONT_FORMATS = ['.ttf', '.otf', '.woff', '.woff2'] as const;

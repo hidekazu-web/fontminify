@@ -56,7 +56,7 @@ export function createInitialState(isDarkMode: boolean): FontStoreState {
     subsetOptions: {
       inputPath: '',
       outputPath: '',
-      preset: 'standard',
+      preset: 'joyo-jis1',
       outputFormat: 'woff2',
       enableWoff2Compression: true,
       compressionLevel: 6,
@@ -74,7 +74,7 @@ export function createInitialState(isDarkMode: boolean): FontStoreState {
     hasErrors: false,
 
     // UI状態
-    selectedPreset: 'standard',
+    selectedPreset: 'joyo-jis1',
     customCharacters: '',
     showAdvancedOptions: false,
     isDragOver: false,
