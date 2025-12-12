@@ -35,7 +35,7 @@ const FontInfoPanel: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 p-4 overflow-auto flex flex-col">
+    <div className="flex-1 min-h-0 p-4 overflow-auto flex flex-col">
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
           フォント情報

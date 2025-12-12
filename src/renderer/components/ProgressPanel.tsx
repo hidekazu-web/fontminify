@@ -11,7 +11,7 @@ const ProgressPanel: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 p-6 bg-gray-50 dark:bg-gray-900">
+    <div className="flex-1 min-h-0 p-6 bg-gray-50 dark:bg-gray-900 overflow-auto">
       <div className="max-w-2xl mx-auto">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center justify-between mb-6">

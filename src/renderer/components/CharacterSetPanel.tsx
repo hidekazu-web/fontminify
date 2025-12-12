@@ -17,7 +17,7 @@ const CharacterSetPanel: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 p-4 overflow-auto">
+    <div className="flex-1 min-h-0 p-4 overflow-auto">
       <CharacterSetSelector
         onSelectionChange={handleCharacterSetChange}
         className="mb-4"
@@ -79,7 +79,7 @@ const OutputOptionsSection: React.FC<OutputOptionsSectionProps> = ({
             {outputFormats.map((format) => (
               <label
                 key={format.value}
-                className={`flex items-center p-2 border rounded-lg cursor-pointer transition-colors ${
+                className={`relative flex items-center p-2 border rounded-lg cursor-pointer transition-colors ${
                   subsetOptions.outputFormat === format.value
                     ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30'
                     : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-700'
