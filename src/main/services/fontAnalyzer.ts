@@ -1,7 +1,12 @@
 import { FontAnalysis, CharacterRange, OpenTypeFeature, VariableAxis } from '../../shared/types';
 import { readFileSync, statSync, existsSync } from 'fs';
 import { extname, basename } from 'path';
-import * as fontkit from 'fontkit';
+
+// fontkit を動的インポートするためのヘルパー
+async function loadFontkit() {
+  const fontkit = await import('fontkit');
+  return fontkit.default || fontkit;
+}
 
 export async function analyzeFont(filePath: string): Promise<FontAnalysis> {
   try {
@@ -76,6 +81,7 @@ export async function analyzeFont(filePath: string): Promise<FontAnalysis> {
     let variableAxes: VariableAxis[] | undefined;
 
     try {
+      const fontkit = await loadFontkit();
       const fontOrCollection = fontkit.openSync(fontBuffer);
       const font = 'fonts' in fontOrCollection ? fontOrCollection.fonts[0] : fontOrCollection;
 

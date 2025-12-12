@@ -26,6 +26,7 @@
     "src/shared/presets.ts",
     "src/shared/types.ts",
     "src/shared/charsets/**/*",
+    "src/types/**/*",
     "@types/**/*"
   ],
   "exclude": [
