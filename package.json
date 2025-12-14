@@ -124,6 +124,7 @@
     "mac": {
       "category": "public.app-category.graphics-design",
       "identity": null,
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
       "target": [
         {
           "target": "dmg",
@@ -139,7 +140,7 @@
       "gatekeeperAssess": false
     },
     "dmg": {
-      "title": "FontMinify Installer",
+      "sign": false,
       "writeUpdateInfo": false
     },
     "win": {
