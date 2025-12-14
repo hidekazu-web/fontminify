@@ -1,0 +1,109 @@
+name: 'Build & Release'
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-electron:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # macOS (Universal - ARM64 + Intel)
+          - platform: 'macos-latest'
+            name: 'macOS'
+
+    runs-on: ${{ matrix.platform }}
+    name: Build (${{ matrix.name }})
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Get version from tag
+        id: get_version
+        shell: bash
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "VERSION=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build Electron app
+        shell: bash
+        env:
+          CI: true
+        run: npm run dist:mac
+
+      - name: Find build artifacts
+        id: artifacts
+        shell: bash
+        run: |
+          echo "=== Searching for build artifacts ==="
+          DMG_ARM64=$(find dist -name "*-arm64.dmg" 2>/dev/null | head -1 || true)
+          DMG_X64=$(find dist -name "*.dmg" ! -name "*-arm64.dmg" 2>/dev/null | head -1 || true)
+          echo "DMG ARM64 found: $DMG_ARM64"
+          echo "DMG x64 found: $DMG_X64"
+          echo "dmg_arm64=$DMG_ARM64" >> $GITHUB_OUTPUT
+          echo "dmg_x64=$DMG_X64" >> $GITHUB_OUTPUT
+
+      - name: Upload to Xserver
+        if: steps.artifacts.outputs.dmg_arm64 != '' || steps.artifacts.outputs.dmg_x64 != ''
+        continue-on-error: true
+        shell: bash
+        env:
+          XSERVER_HOST: ${{ secrets.XSERVER_HOST }}
+          XSERVER_USER: ${{ secrets.XSERVER_USER }}
+          XSERVER_SSH_KEY: ${{ secrets.XSERVER_SSH_KEY }}
+          XSERVER_PATH: ${{ secrets.XSERVER_PATH }}
+          VERSION: ${{ steps.get_version.outputs.VERSION }}
+          DMG_ARM64: ${{ steps.artifacts.outputs.dmg_arm64 }}
+          DMG_X64: ${{ steps.artifacts.outputs.dmg_x64 }}
+        run: |
+          if [ -z "$XSERVER_HOST" ]; then
+            echo "Xserver secrets not configured, skipping upload"
+            exit 0
+          fi
+          mkdir -p ~/.ssh
+          echo "$XSERVER_SSH_KEY" > ~/.ssh/xserver_key
+          chmod 600 ~/.ssh/xserver_key
+
+          # Create version directory
+          ssh -o StrictHostKeyChecking=no -p 10022 -i ~/.ssh/xserver_key "$XSERVER_USER@$XSERVER_HOST" "mkdir -p $XSERVER_PATH/$VERSION"
+
+          # Upload ARM64 DMG
+          if [ -n "$DMG_ARM64" ]; then
+            echo "Uploading: $DMG_ARM64"
+            scp -o StrictHostKeyChecking=no -P 10022 -i ~/.ssh/xserver_key "$DMG_ARM64" "$XSERVER_USER@$XSERVER_HOST:$XSERVER_PATH/$VERSION/"
+          fi
+
+          # Upload x64 DMG
+          if [ -n "$DMG_X64" ]; then
+            echo "Uploading: $DMG_X64"
+            scp -o StrictHostKeyChecking=no -P 10022 -i ~/.ssh/xserver_key "$DMG_X64" "$XSERVER_USER@$XSERVER_HOST:$XSERVER_PATH/$VERSION/"
+          fi
+
+          rm -f ~/.ssh/xserver_key
+          echo "Upload completed!"
+
+      - name: Upload artifacts to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: FontMinify-${{ steps.get_version.outputs.VERSION }}-macOS
+          path: dist/*.dmg
+          retention-days: 30
