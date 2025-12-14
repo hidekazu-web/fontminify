@@ -9,6 +9,10 @@ export enum ErrorType {
   VALIDATION_FAILED = 'VALIDATION_FAILED',
   NETWORK_ERROR = 'NETWORK_ERROR',
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
+  // Web版固有のエラー
+  WASM_LOAD_FAILED = 'WASM_LOAD_FAILED',
+  WORKER_ERROR = 'WORKER_ERROR',
+  FILE_TOO_LARGE = 'FILE_TOO_LARGE',
 }
 
 export interface AppError {
@@ -171,6 +175,43 @@ export function createValidationFailedError(message: string, filePath?: string):
   );
 }
 
+// Web版固有のエラー作成関数
+export function createWasmLoadFailedError(cause?: Error): FontMinifyError {
+  return new FontMinifyError(
+    ErrorType.WASM_LOAD_FAILED,
+    'WebAssemblyモジュールの読み込みに失敗しました',
+    {
+      cause,
+      recoverable: false,
+      suggestion: 'ページを再読み込みするか、ブラウザを再起動してください。',
+    }
+  );
+}
+
+export function createWorkerError(message: string, cause?: Error): FontMinifyError {
+  return new FontMinifyError(
+    ErrorType.WORKER_ERROR,
+    `Workerエラー: ${message}`,
+    {
+      cause,
+      recoverable: false,
+      suggestion: 'ページを再読み込みしてください。',
+    }
+  );
+}
+
+export function createFileTooLargeError(fileSize: number, maxSize: number): FontMinifyError {
+  const fileSizeMB = (fileSize / 1024 / 1024).toFixed(1);
+  const maxSizeMB = (maxSize / 1024 / 1024).toFixed(0);
+  return new FontMinifyError(
+    ErrorType.FILE_TOO_LARGE,
+    `ファイルサイズが大きすぎます: ${fileSizeMB}MB（上限: ${maxSizeMB}MB）`,
+    {
+      suggestion: 'より小さなフォントファイルを選択してください。',
+    }
+  );
+}
+
 export function handleError(error: unknown, filePath?: string): FontMinifyError {
   if (error instanceof FontMinifyError) {
     return error;
@@ -201,6 +242,15 @@ export function handleError(error: unknown, filePath?: string): FontMinifyError 
 
     if (error.message.includes('compression') || error.message.includes('woff2')) {
       return createCompressionFailedError(filePath || 'unknown', error);
+    }
+
+    // Web版固有のエラー
+    if (error.message.includes('WASM') || error.message.includes('WebAssembly')) {
+      return createWasmLoadFailedError(error);
+    }
+
+    if (error.message.includes('Worker')) {
+      return createWorkerError(error.message, error);
     }
 
     // 一般的なエラー
@@ -264,13 +314,16 @@ export function isRecoverableError(errorType: ErrorType): boolean {
     case ErrorType.SUBSET_FAILED:
     case ErrorType.COMPRESSION_FAILED:
     case ErrorType.VALIDATION_FAILED:
+    case ErrorType.FILE_TOO_LARGE:
       return true;
-    
+
     case ErrorType.CORRUPT_FONT:
     case ErrorType.NETWORK_ERROR:
     case ErrorType.UNKNOWN_ERROR:
+    case ErrorType.WASM_LOAD_FAILED:
+    case ErrorType.WORKER_ERROR:
       return false;
-    
+
     default:
       return false;
   }
@@ -285,20 +338,23 @@ export function getErrorSeverity(errorType: ErrorType): 'low' | 'medium' | 'high
     case ErrorType.PERMISSION_DENIED:
     case ErrorType.SUBSET_FAILED:
       return 'error';
-      
+
     case ErrorType.COMPRESSION_FAILED:
+    case ErrorType.FILE_TOO_LARGE:
       return 'warning';
-    
+
     case ErrorType.VALIDATION_FAILED:
       return 'low';
-    
+
     case ErrorType.INSUFFICIENT_SPACE:
       return 'warning';
-    
+
     case ErrorType.NETWORK_ERROR:
     case ErrorType.UNKNOWN_ERROR:
+    case ErrorType.WASM_LOAD_FAILED:
+    case ErrorType.WORKER_ERROR:
       return 'critical';
-    
+
     default:
       return 'medium';
   }

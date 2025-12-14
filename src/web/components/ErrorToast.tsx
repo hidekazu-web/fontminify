@@ -88,6 +88,12 @@ export function ErrorToast({ error, index, onDismiss, onRetry }: ErrorToastProps
         return '圧縮エラー'
       case ErrorType.VALIDATION_FAILED:
         return '検証エラー'
+      case ErrorType.WASM_LOAD_FAILED:
+        return 'WASMエラー'
+      case ErrorType.WORKER_ERROR:
+        return 'Workerエラー'
+      case ErrorType.FILE_TOO_LARGE:
+        return 'ファイルサイズ超過'
       default:
         return 'エラー'
     }
