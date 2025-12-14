@@ -38,6 +38,7 @@ declare module 'fontkit' {
     fonts: Font[];
   }
 
-  export function openSync(buffer: Buffer): Font | FontCollection;
-  export function open(buffer: Buffer): Promise<Font | FontCollection>;
+  export function openSync(path: string): Font | FontCollection;
+  export function open(path: string): Promise<Font | FontCollection>;
+  export function create(buffer: Buffer | Uint8Array): Font | FontCollection;
 }
