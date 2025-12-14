@@ -1,5 +1,6 @@
 import React from 'react'
 import { FileDropZone } from './components/FileDropZone'
+import { ErrorContainer } from './components/ErrorToast'
 import { useFontStore } from './stores/fontStore'
 import { CHARACTER_PRESETS } from '../shared/presets'
 import { OutputFormat } from '../shared/types'
@@ -32,7 +33,10 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* エラートースト */}
+      <ErrorContainer errors={errors} onDismiss={removeError} />
+
       {/* ヘッダー */}
       <header className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-6">
         <div className="max-w-4xl mx-auto">
@@ -41,36 +45,7 @@ export function App() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto py-8 px-4">
-        {/* エラー表示 */}
-        {errors.length > 0 && (
-          <div className="mb-6 space-y-2">
-            {errors.map((error, index) => (
-              <div
-                key={index}
-                className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start justify-between"
-              >
-                <div>
-                  <p className="font-medium text-red-800">{error.type}</p>
-                  <p className="text-sm text-red-600">{error.message}</p>
-                </div>
-                <button
-                  onClick={() => removeError(index)}
-                  className="text-red-400 hover:text-red-600"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
+      <main className="flex-1 max-w-4xl mx-auto py-8 px-4 w-full">
         {/* ファイルドロップゾーン */}
         <FileDropZone />
 

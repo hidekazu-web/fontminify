@@ -1,5 +1,6 @@
 import { analyzeFont } from '../../lib/fontAnalyzer'
 import { subsetFont } from '../../lib/fontSubsetter'
+import { handleError, ErrorType } from '../../shared/errors'
 import type {
   WorkerRequest,
   WorkerResponse,
@@ -35,15 +36,18 @@ async function handleAnalyze(id: string, payload: AnalyzePayload): Promise<void>
       payload: { analysis }
     })
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error)
-    console.error('[Worker] Analysis error:', message)
+    const appError = handleError(error, payload.fileName)
+    console.error('[Worker] Analysis error:', appError.message)
 
     postResponse<ErrorPayload>({
       type: 'error',
       id,
       payload: {
-        code: 'ANALYZE_ERROR',
-        message
+        code: appError.type,
+        message: appError.message,
+        details: appError.cause?.message,
+        suggestion: appError.suggestion,
+        recoverable: appError.recoverable
       }
     })
   } finally {
@@ -93,15 +97,18 @@ async function handleSubset(id: string, payload: SubsetPayload): Promise<void> {
         payload: {}
       })
     } else {
-      const message = error instanceof Error ? error.message : String(error)
-      console.error('[Worker] Subset error:', message)
+      const appError = handleError(error, payload.fileName)
+      console.error('[Worker] Subset error:', appError.message)
 
       postResponse<ErrorPayload>({
         type: 'error',
         id,
         payload: {
-          code: 'SUBSET_ERROR',
-          message
+          code: appError.type,
+          message: appError.message,
+          details: appError.cause?.message,
+          suggestion: appError.suggestion,
+          recoverable: appError.recoverable
         }
       })
     }

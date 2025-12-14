@@ -10,11 +10,24 @@ export default defineConfig({
   build: {
     outDir: resolve(__dirname, '../../dist-web'),
     emptyOutDir: true,
+    // 圧縮最適化（esbuildを使用）
+    minify: 'esbuild',
+    // チャンク分割戦略
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html')
+      },
+      output: {
+        manualChunks: {
+          // Reactとzustandを分離
+          'vendor-react': ['react', 'react-dom', 'zustand']
+        }
       }
-    }
+    },
+    // ソースマップ無効（プロダクション）
+    sourcemap: false,
+    // チャンク警告サイズ
+    chunkSizeWarningLimit: 1000
   },
   resolve: {
     alias: {

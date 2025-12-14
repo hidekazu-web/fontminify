@@ -1,10 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { BrowserCheck } from './components/BrowserCheck'
 import { App } from './App'
-import '../renderer/styles/index.css'
+import './styles/index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <BrowserCheck>
+      <App />
+    </BrowserCheck>
   </React.StrictMode>
 )

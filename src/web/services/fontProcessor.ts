@@ -1,4 +1,5 @@
 import { FontAnalysis, OutputFormat } from '../../shared/types'
+import { FontMinifyError, ErrorType } from '../../shared/errors'
 import type {
   WorkerRequest,
   WorkerResponse,
@@ -14,6 +15,20 @@ type PendingRequest = {
   resolve: (value: unknown) => void
   reject: (error: Error) => void
   onProgress?: (progress: ProgressPayload) => void
+}
+
+/**
+ * WorkerからのエラーペイロードをFontMinifyErrorに変換
+ */
+function createErrorFromPayload(payload: ErrorPayload): FontMinifyError {
+  return new FontMinifyError(
+    (payload.code as ErrorType) || ErrorType.UNKNOWN_ERROR,
+    payload.message,
+    {
+      recoverable: payload.recoverable ?? true,
+      suggestion: payload.suggestion
+    }
+  )
 }
 
 /**
@@ -59,13 +74,17 @@ class FontProcessor {
 
       case 'error': {
         const errorPayload = payload as ErrorPayload
-        pending.reject(new Error(errorPayload.message))
+        pending.reject(createErrorFromPayload(errorPayload))
         this.pendingRequests.delete(id)
         break
       }
 
       case 'cancelled':
-        pending.reject(new Error('Processing cancelled'))
+        pending.reject(new FontMinifyError(
+          ErrorType.UNKNOWN_ERROR,
+          '処理がキャンセルされました',
+          { recoverable: true }
+        ))
         this.pendingRequests.delete(id)
         break
     }
@@ -75,7 +94,14 @@ class FontProcessor {
     console.error('[FontProcessor] Worker error:', event)
     // すべての待機中リクエストを拒否
     for (const [id, pending] of this.pendingRequests) {
-      pending.reject(new Error('Worker error: ' + event.message))
+      pending.reject(new FontMinifyError(
+        ErrorType.UNKNOWN_ERROR,
+        'Workerエラー: ' + event.message,
+        {
+          recoverable: false,
+          suggestion: 'ページを再読み込みしてください。'
+        }
+      ))
       this.pendingRequests.delete(id)
     }
   }

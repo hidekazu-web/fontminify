@@ -54,4 +54,6 @@ export interface ErrorPayload {
   code: string
   message: string
   details?: string
+  suggestion?: string
+  recoverable?: boolean
 }
