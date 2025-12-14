@@ -1,0 +1,43 @@
+name: Deploy Web to Xserver
+
+on:
+  push:
+    tags:
+      - 'web-v*'  # web-v1.0.0 のようなタグでトリガー
+  workflow_dispatch:  # 手動実行も可能
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Web version
+        run: npm run build:web
+
+      - name: Deploy to Xserver via SSH
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.XSERVER_HOST }}
+          username: ${{ secrets.XSERVER_USER }}
+          key: ${{ secrets.XSERVER_SSH_KEY }}
+          port: ${{ secrets.XSERVER_PORT }}
+          source: "dist-web/*"
+          target: ${{ secrets.XSERVER_DEPLOY_PATH }}
+          strip_components: 1  # dist-web/ を除去してファイルを直接配置
+
+      - name: Deployment complete
+        run: |
+          echo "🚀 FontMinify Web deployed to Xserver successfully!"
+          echo "Tag: ${{ github.ref_name }}"

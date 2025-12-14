@@ -1,0 +1,19 @@
+# 全てのクローラーをブロック
+User-agent: *
+Disallow: /
+
+# 主要な検索エンジンを明示的にブロック
+User-agent: Googlebot
+Disallow: /
+
+User-agent: Bingbot
+Disallow: /
+
+User-agent: Yahoo! Slurp
+Disallow: /
+
+User-agent: Baiduspider
+Disallow: /
+
+User-agent: YandexBot
+Disallow: /

@@ -32,6 +32,7 @@
     "test": "vitest",
     "test:unit": "vitest run --reporter=verbose",
     "test:e2e": "playwright test",
+    "test:e2e:web": "playwright test --config playwright.web.config.ts",
     "poc": "vite --config poc/vite.config.ts",
     "dev:web": "vite --config src/web/vite.config.ts",
     "build:web": "vite build --config src/web/vite.config.ts",

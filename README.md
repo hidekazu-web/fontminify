@@ -4,7 +4,10 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![Electron](https://img.shields.io/badge/Electron-37.2-brightgreen.svg)](https://www.electronjs.org/)
 
-日本語フォントの軽量化を簡単に行えるmacOSデスクトップアプリケーションです。フォントのサブセット化により、ファイルサイズを90%以上削減できます。
+日本語フォントの軽量化を簡単に行えるツールです。フォントのサブセット化により、ファイルサイズを90%以上削減できます。
+
+- **デスクトップ版**: macOS向けElectronアプリケーション
+- **Web版**: ブラウザで動作する完全クライアントサイド処理（サーバー送信なし）
 
 ## 🎯 主な機能
 
@@ -14,6 +17,42 @@
 - **高い圧縮率**: WOFF2形式で90%以上のサイズ削減
 - **リアルタイム進捗**: 処理状況をリアルタイムで表示
 - **ダークモード**: システム設定に連動
+
+## 🌐 Web版
+
+### 特徴
+- **完全クライアントサイド処理**: フォントデータがサーバーに送信されることはありません
+- **WebAssembly**: HarfBuzz WASMを使用した高速サブセット化
+- **バリアブルフォント対応**: 軸の固定（ピン）機能をサポート
+- **即時ダウンロード**: 処理完了後すぐにダウンロード可能
+
+### 対応ブラウザ
+- Chrome 89+
+- Firefox 89+
+- Safari 15+
+- Edge 89+
+
+### 開発用コマンド（Web版）
+
+```bash
+# Web版開発サーバー起動
+npm run dev:web
+
+# Web版ビルド
+npm run build:web
+
+# Web版プレビュー
+npm run preview:web
+
+# Web版E2Eテスト
+npm run test:e2e:web
+```
+
+### デプロイ
+
+Web版はVercelやGitHub Pagesにデプロイ可能です。
+- Vercel: `vercel.json` で設定済み（COOP/COEPヘッダー、WASMキャッシュ対応）
+- GitHub Actions: `.github/workflows/deploy-web.yml` で自動ビルド
 
 ## 📦 対応フォーマット
 
@@ -156,40 +195,47 @@ FontMinify App
 
 ### テスト実行
 ```bash
-# 全テスト実行
+# 全テスト実行（単体テスト）
 npm test
 
-# 単体テストのみ
+# 単体テストのみ（verbose出力）
 npm run test:unit
 
-# E2Eテストのみ
+# デスクトップ版E2Eテストのみ
 npm run test:e2e
 
-# テストカバレッジ
-npm run test:coverage
+# Web版E2Eテストのみ
+npm run test:e2e:web
+
+# Web版単体テストのみ
+npm test -- --run tests/web/
 ```
 
 ## 📋 ロードマップ
 
-### v1.0 (現在開発中)
+### v1.2 (現在)
 - ✅ 基本的なフォントサブセット化
 - ✅ プリセット文字セット
 - ✅ WOFF2圧縮
 - ✅ プログレス表示
 - ✅ エラーハンドリング
-- 🔄 E2Eテスト実装
-- ⏳ macOS配布準備
+- ✅ バリアブルフォント対応（軸検出・固定）
+- ✅ E2Eテスト実装
+- ✅ macOS配布準備
+- ✅ **Web版対応** (NEW)
+  - HarfBuzz WASMによるサブセット化
+  - クライアントサイド完全処理
+  - バリアブルフォント軸固定対応
 
-### v1.1 (予定)
-- 可変フォント対応
-- バッチ処理機能
+### v1.3 (予定)
 - カラー絵文字フォント対応
+- バッチ処理機能強化
 - Windows対応
 
 ### v2.0 (予定)
-- WebAssembly実装
 - クラウド処理対応
 - API提供
+- コラボレーション機能
 
 ## 🤝 コントリビューション
 
@@ -206,7 +252,9 @@ npm run test:coverage
 ## 🙏 謝辞
 
 - [fontkit](https://github.com/foliojs/fontkit) - フォント解析ライブラリ
-- [subset-font](https://github.com/papandreou/subset-font) - フォントサブセット化ライブラリ
+- [subset-font](https://github.com/papandreou/subset-font) - フォントサブセット化ライブラリ（デスクトップ版）
+- [harfbuzzjs](https://www.npmjs.com/package/harfbuzzjs) - HarfBuzz WASMラッパー（Web版）
+- [woff2-encoder](https://www.npmjs.com/package/woff2-encoder) - WOFF2圧縮
 - [Electron](https://www.electronjs.org/) - クロスプラットフォームデスクトップアプリ開発
 - [React](https://reactjs.org/) - UIライブラリ
 - [TypeScript](https://www.typescriptlang.org/) - 型安全なJavaScript

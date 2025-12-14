@@ -16,6 +16,7 @@ export default defineConfig({
       '@renderer': resolve(__dirname, 'src/renderer'),
       '@shared': resolve(__dirname, 'src/shared'),
       '@lib': resolve(__dirname, 'src/lib'),
+      '@web': resolve(__dirname, 'src/web'),
     },
   },
 });
