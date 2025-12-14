@@ -5,9 +5,14 @@ yarn-debug.log*
 yarn-error.log*
 
 # Build outputs
-build/
 dist/
 out/
+
+# Keep electron-builder config files in build/
+!build/
+build/*
+!build/dmg-background.svg
+!build/entitlements.mac.plist
 
 # Development files
 debug-electron.js
