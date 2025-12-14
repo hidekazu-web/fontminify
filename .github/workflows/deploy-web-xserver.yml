@@ -26,16 +26,30 @@ jobs:
       - name: Build Web version
         run: npm run build:web
 
+      - name: Debug - Check secrets are set
+        run: |
+          echo "Host length: ${#XSERVER_HOST}"
+          echo "User length: ${#XSERVER_USER}"
+          echo "Port value: $XSERVER_PORT"
+          echo "Path length: ${#XSERVER_DEPLOY_PATH}"
+        env:
+          XSERVER_HOST: ${{ secrets.XSERVER_HOST }}
+          XSERVER_USER: ${{ secrets.XSERVER_USER }}
+          XSERVER_PORT: ${{ secrets.XSERVER_PORT }}
+          XSERVER_DEPLOY_PATH: ${{ secrets.XSERVER_DEPLOY_PATH }}
+
       - name: Deploy to Xserver via SSH
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.XSERVER_HOST }}
           username: ${{ secrets.XSERVER_USER }}
           key: ${{ secrets.XSERVER_SSH_KEY }}
-          port: ${{ secrets.XSERVER_PORT }}
+          port: 10022
           source: "dist-web/*"
           target: ${{ secrets.XSERVER_DEPLOY_PATH }}
-          strip_components: 1  # dist-web/ を除去してファイルを直接配置
+          strip_components: 1
+          timeout: 60s
+          debug: true
 
       - name: Deployment complete
         run: |
