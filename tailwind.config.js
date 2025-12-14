@@ -3,6 +3,8 @@ module.exports = {
   content: [
     "./src/renderer/**/*.{js,ts,jsx,tsx}",
     "./src/renderer/index.html",
+    "./src/web/**/*.{js,ts,jsx,tsx}",
+    "./src/web/index.html",
   ],
   darkMode: 'class',
   theme: {

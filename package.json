@@ -32,7 +32,10 @@
     "test": "vitest",
     "test:unit": "vitest run --reporter=verbose",
     "test:e2e": "playwright test",
-    "poc": "vite --config poc/vite.config.ts"
+    "poc": "vite --config poc/vite.config.ts",
+    "dev:web": "vite --config src/web/vite.config.ts",
+    "build:web": "vite build --config src/web/vite.config.ts",
+    "preview:web": "vite preview --config src/web/vite.config.ts --port 5177"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.0.5",
@@ -48,6 +51,7 @@
     "react-dropzone": "^14.2.3",
     "subset-font": "^2.4.0",
     "ts-node": "^10.9.2",
+    "woff2-encoder": "^2.0.0",
     "zustand": "^4.4.7"
   },
   "devDependencies": {
@@ -153,11 +157,15 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "portable",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ]
     },

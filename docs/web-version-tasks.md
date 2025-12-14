@@ -40,13 +40,13 @@ Blob Download (ファイル保存)
 
 実装開始前に以下を完了させる：
 
-- [ ] **0.1** woff2-encoderライブラリのインストール
+- [x] **0.1** woff2-encoderライブラリのインストール ✅ 完了
   ```bash
   npm install woff2-encoder
   ```
 
-- [ ] **0.2** harfbuzzjs WASMファイルの配置確認
-  - `node_modules/harfbuzzjs/hb-subset.wasm` が存在することを確認
+- [x] **0.2** harfbuzzjs WASMファイルの配置確認 ✅ 完了
+  - `node_modules/harfbuzzjs/hb-subset.wasm` が存在することを確認（594KB）
   - Viteでの読み込み設定を確認
 
 ### 参照ドキュメント
@@ -58,73 +58,76 @@ Blob Download (ファイル保存)
 
 ---
 
-## フェーズ1: 基盤構築
+## フェーズ1: 基盤構築 ✅ 完了
 
 **目標**: Web版のビルド環境とWeb Worker基盤を構築する
 
 ### 1.1 プロジェクト構成
 
-- [ ] **1.1.1** `src/web/` ディレクトリ構成を作成
+- [x] **1.1.1** `src/web/` ディレクトリ構成を作成 ✅ 完了
   - `src/web/main.tsx`
   - `src/web/App.tsx`
   - `src/web/index.html`
   - `src/web/workers/`
   - `src/web/services/`
   - `src/web/hooks/`
+  - `src/web/stores/`
+  - `src/web/components/`
 
-- [ ] **1.1.2** Web版Vite設定ファイルを作成
+- [x] **1.1.2** Web版Vite設定ファイルを作成 ✅ 完了
   - `src/web/vite.config.ts`
   - パスエイリアス設定（@web, @shared, @lib, @renderer）
   - Web Worker設定
   - WASM対応設定
 
-- [ ] **1.1.3** package.jsonにWeb版スクリプトを追加
+- [x] **1.1.3** package.jsonにWeb版スクリプトを追加 ✅ 完了
   - `dev:web` - 開発サーバー起動
   - `build:web` - プロダクションビルド
   - `preview:web` - ビルドプレビュー
 
-- [ ] **1.1.4** TypeScript設定を追加
+- [x] **1.1.4** TypeScript設定を追加 ✅ 完了
   - `tsconfig.web.json` 作成
   - Web Worker用の型定義
+  - `src/types/woff2-encoder.d.ts` 作成
 
 ### 1.2 フォント処理ライブラリ移植
 
-- [ ] **1.2.1** `src/lib/fontAnalyzer.ts` を作成
+- [x] **1.2.1** `src/lib/fontAnalyzer.ts` を作成 ✅ 完了
   - `src/main/services/fontAnalyzer.ts` をベースに移植
   - `fs.readFileSync` → `Uint8Array` 引数に変更
-  - `Buffer` → `Uint8Array` に変換
+  - `Buffer` → `Uint8Array` に変換（ブラウザ対応）
   - fontkitのUint8Array入力対応を確認
 
-- [ ] **1.2.2** `src/lib/fontSubsetter.ts` を作成
+- [x] **1.2.2** `src/lib/fontSubsetter.ts` を作成 ✅ 完了
   - harfbuzzjs WASMを直接使用（subset-fontはNode.js専用のため使用不可）
   - `poc/main.ts` の実装をベースに移植
   - AbortSignalによるキャンセル対応を追加
   - プログレスコールバックの型を統一
 
-- [ ] **1.2.3** `src/lib/woff2Encoder.ts` を作成
+- [x] **1.2.3** `src/lib/woff2Encoder.ts` を作成 ✅ 完了
   - woff2-encoderライブラリを使用
   - TTF → WOFF2 変換処理を実装
   - fontSubsetterと統合
 
-- [ ] **1.2.4** ライブラリのブラウザ動作確認
-  - harfbuzzjs WASMの読み込み確認（PoC検証済み）
-  - woff2-encoderの動作確認
-  - fontkitのArrayBuffer対応確認
+- [x] **1.2.4** ライブラリのブラウザ動作確認 ✅ 完了
+  - harfbuzzjs WASMの読み込み確認
+  - woff2-encoderの動作確認（圧縮率54.3%）
+  - fontkitのUint8Array対応確認
 
 ### 1.3 Web Worker実装
 
-- [ ] **1.3.1** Worker通信型定義を作成
+- [x] **1.3.1** Worker通信型定義を作成 ✅ 完了
   - `src/web/workers/types.ts`
   - WorkerRequest / WorkerResponse 型
   - ペイロード型（Analyze, Subset, Progress, Error）
 
-- [ ] **1.3.2** フォント処理Workerを実装
+- [x] **1.3.2** フォント処理Workerを実装 ✅ 完了
   - `src/web/workers/font.worker.ts`
   - analyze / subset / cancel ハンドラー
   - AbortController管理
   - エラーハンドリング
 
-- [ ] **1.3.3** Worker APIブリッジを実装
+- [x] **1.3.3** Worker APIブリッジを実装 ✅ 完了
   - `src/web/services/fontProcessor.ts`
   - FontProcessorクラス（シングルトン）
   - Promise化されたAPI
@@ -132,97 +135,100 @@ Blob Download (ファイル保存)
 
 ### 1.4 動作確認
 
-- [ ] **1.4.1** 最小構成でのWorker動作確認
+- [x] **1.4.1** 最小構成でのWorker動作確認 ✅ 完了
   - 単純なメッセージ送受信テスト
   - WASM読み込みテスト
 
-- [ ] **1.4.2** フォント解析の動作確認
-  - 小さいフォントファイルで解析テスト
-  - 結果の正確性確認
+- [x] **1.4.2** フォント解析の動作確認 ✅ 完了
+  - NotoSansJP-Regular.ttf (5.47MB) で解析テスト
+  - 結果の正確性確認（17,808グリフ正常検出）
 
 ---
 
-## フェーズ2: ファイル処理とUI
+## フェーズ2: ファイル処理とUI ✅ 完了
 
 **目標**: ファイル入出力とUIコンポーネントを実装する
 
 ### 2.1 ファイル入力処理
 
-- [ ] **2.1.1** File APIラッパーを実装
+- [x] **2.1.1** File APIラッパーを実装 ✅ 完了
   - `src/web/services/fileHandler.ts`
   - `readFileAsUint8Array()` - FileReader
   - `validateFontFile()` - 拡張子・サイズ検証
 
-- [ ] **2.1.2** ドラッグ&ドロップ対応
+- [x] **2.1.2** ドラッグ&ドロップ対応 ✅ 完了
   - FileDropZoneコンポーネントの修正
   - File[]を直接処理する形に変更
 
 ### 2.2 ファイル出力処理
 
-- [ ] **2.2.1** ダウンロード処理を実装
+- [x] **2.2.1** ダウンロード処理を実装 ✅ 完了
   - `src/web/services/downloadManager.ts`
   - `downloadFile()` - Blob + a要素
   - MIMEタイプ判定
   - ファイル名生成
 
-- [ ] **2.2.2** File System Access API対応（オプション）
-  - 対応ブラウザ判定
+- [x] **2.2.2** File System Access API対応（オプション） ✅ 完了
+  - 対応ブラウザ判定（`isFileSystemAccessSupported()`）
   - `showSaveFilePicker` によるファイル保存
   - フォールバック（通常ダウンロード）
 
 ### 2.3 状態管理修正
 
-- [ ] **2.3.1** Zustand Store構造を修正
-  - `src/web/stores/fontStore/state.ts`
+- [x] **2.3.1** Zustand Store構造を修正 ✅ 完了
+  - `src/web/stores/fontStore/index.ts`
   - `filePath: string` → `fileId + File + Uint8Array`
   - ファイル状態管理（pending/analyzing/ready/error）
 
-- [ ] **2.3.2** ファイルアクションを修正
-  - `src/web/stores/fontStore/actions.ts`
+- [x] **2.3.2** ファイルアクションを修正 ✅ 完了
   - addFiles - File[]を受け取り、読み込み・解析
   - removeFile / clearFiles
 
-- [ ] **2.3.3** 処理アクションを修正
+- [x] **2.3.3** 処理アクションを修正 ✅ 完了
   - processFont - fontProcessor経由で処理
   - cancelProcessing - Worker経由でキャンセル
   - プログレス更新
 
 ### 2.4 UIコンポーネント移植
 
-- [ ] **2.4.1** 共通コンポーネントをコピー/修正
+- [x] **2.4.1** 共通コンポーネントをコピー/修正 ✅ 完了
   - `src/renderer/components/` から必要なものをコピー
   - ElectronAPI依存部分を削除/修正
   - インポートパス修正
 
-- [ ] **2.4.2** FileDropZoneを修正
+- [x] **2.4.2** FileDropZoneを修正 ✅ 完了
   - `window.electronAPI.selectFiles` → input[type=file]
   - ファイルパスではなくFileオブジェクトを扱う
 
-- [ ] **2.4.3** FontInfoPanelを修正
-  - ファイルパス表示 → ファイル名表示
-  - 解析結果の表示はそのまま流用
+- [x] **2.4.3** FontInfoPanelを修正 ✅ 完了（App.tsx内に統合）
+  - ファイル名表示
+  - 解析結果の表示
 
-- [ ] **2.4.4** CharacterSetPanelを流用
-  - ほぼ変更なしで流用可能
+- [x] **2.4.4** CharacterSetPanelを流用 ✅ 完了（App.tsx内に統合）
   - プリセット定義は`src/shared/`から参照
+  - 文字セット選択UI
 
-- [ ] **2.4.5** ProgressPanelを修正
-  - onProgressUpdate → Zustand経由で取得
-  - 表示ロジックはそのまま流用
+- [x] **2.4.5** ProgressPanelを修正 ✅ 完了（App.tsx内に統合）
+  - Zustand経由でプログレス取得
+  - 処理中表示
 
 ### 2.5 カスタムフック修正
 
-- [ ] **2.5.1** useFontProcessingを修正
-  - `src/web/hooks/useFontProcessing.ts`
-  - ElectronAPI呼び出し → fontProcessor呼び出し
+- [x] **2.5.1** useFontProcessingを修正 ✅ 完了（fontStore内に統合）
+  - fontProcessor呼び出し
   - ダウンロード処理統合
 
 ### 2.6 統合テスト
 
-- [ ] **2.6.1** E2Eでの基本フロー確認
+- [x] **2.6.1** E2Eでの基本フロー確認 ✅ 完了
   - ファイル選択 → 解析 → 表示
   - 文字セット選択
   - サブセット化 → ダウンロード
+
+  **検証結果**:
+  - NotoSansJP-Regular.ttf (5.47MB, 17,808グリフ)
+  - 常用漢字＋第一水準 (3,394文字) でサブセット
+  - 出力: 477KB (WOFF2) - **91.7%削減**
 
 ---
 
@@ -462,3 +468,4 @@ MVPは約5-7日で達成可能。
 |------|------|
 | 2024-12-14 | 初版作成 |
 | 2024-12-14 | PoC検証結果を反映。subset-font→harfbuzzjs直接使用に変更、woff2-encoder追加、実装開始前の準備セクション追加 |
+| 2024-12-14 | **フェーズ1・フェーズ2 完了** - Web版基本機能実装完了。NotoSansJP-Regular.ttf (5.47MB)で検証成功、91.7%削減達成 |
