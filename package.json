@@ -92,6 +92,7 @@
   "build": {
     "appId": "com.fontminify.app",
     "productName": "FontMinify",
+    "artifactName": "${productName}-${version}.${ext}",
     "directories": {
       "output": "dist"
     },
