@@ -17,6 +17,11 @@ jobs:
           # macOS (Universal - ARM64 + Intel)
           - platform: 'macos-latest'
             name: 'macOS'
+            build_cmd: 'npm run build && npx electron-builder --mac --publish=never'
+          # Windows (x64)
+          - platform: 'windows-latest'
+            name: 'Windows'
+            build_cmd: 'npm run build && npx electron-builder --win --publish=never'
 
     runs-on: ${{ matrix.platform }}
     name: Build (${{ matrix.name }})
@@ -48,13 +53,14 @@ jobs:
         shell: bash
         env:
           CI: true
-        run: npm run build && npx electron-builder --mac --publish=never
+        run: ${{ matrix.build_cmd }}
 
-      - name: Find build artifacts
-        id: artifacts
+      - name: Find build artifacts (macOS)
+        if: runner.os == 'macOS'
+        id: artifacts_mac
         shell: bash
         run: |
-          echo "=== Searching for build artifacts ==="
+          echo "=== Searching for macOS build artifacts ==="
           DMG_ARM64=$(find dist -name "*-arm64.dmg" 2>/dev/null | head -1 || true)
           DMG_X64=$(find dist -name "*.dmg" ! -name "*-arm64.dmg" 2>/dev/null | head -1 || true)
           echo "DMG ARM64 found: $DMG_ARM64"
@@ -62,8 +68,21 @@ jobs:
           echo "dmg_arm64=$DMG_ARM64" >> $GITHUB_OUTPUT
           echo "dmg_x64=$DMG_X64" >> $GITHUB_OUTPUT
 
-      - name: Upload to Xserver
-        if: steps.artifacts.outputs.dmg_arm64 != '' || steps.artifacts.outputs.dmg_x64 != ''
+      - name: Find build artifacts (Windows)
+        if: runner.os == 'Windows'
+        id: artifacts_win
+        shell: bash
+        run: |
+          echo "=== Searching for Windows build artifacts ==="
+          NSIS_EXE=$(find dist -name "*.exe" ! -name "*portable*" 2>/dev/null | head -1 || true)
+          PORTABLE_EXE=$(find dist -name "*portable*.exe" 2>/dev/null | head -1 || true)
+          echo "NSIS EXE found: $NSIS_EXE"
+          echo "Portable EXE found: $PORTABLE_EXE"
+          echo "nsis_exe=$NSIS_EXE" >> $GITHUB_OUTPUT
+          echo "portable_exe=$PORTABLE_EXE" >> $GITHUB_OUTPUT
+
+      - name: Upload to Xserver (macOS)
+        if: runner.os == 'macOS' && (steps.artifacts_mac.outputs.dmg_arm64 != '' || steps.artifacts_mac.outputs.dmg_x64 != '')
         continue-on-error: true
         shell: bash
         env:
@@ -72,8 +91,8 @@ jobs:
           XSERVER_SSH_KEY: ${{ secrets.XSERVER_SSH_KEY }}
           XSERVER_PATH: ${{ secrets.XSERVER_PATH }}
           VERSION: ${{ steps.get_version.outputs.VERSION }}
-          DMG_ARM64: ${{ steps.artifacts.outputs.dmg_arm64 }}
-          DMG_X64: ${{ steps.artifacts.outputs.dmg_x64 }}
+          DMG_ARM64: ${{ steps.artifacts_mac.outputs.dmg_arm64 }}
+          DMG_X64: ${{ steps.artifacts_mac.outputs.dmg_x64 }}
         run: |
           if [ -z "$XSERVER_HOST" ]; then
             echo "Xserver secrets not configured, skipping upload"
@@ -101,9 +120,57 @@ jobs:
           rm -f ~/.ssh/xserver_key
           echo "Upload completed!"
 
-      - name: Upload artifacts to GitHub
+      - name: Upload to Xserver (Windows)
+        if: runner.os == 'Windows' && (steps.artifacts_win.outputs.nsis_exe != '' || steps.artifacts_win.outputs.portable_exe != '')
+        continue-on-error: true
+        shell: bash
+        env:
+          XSERVER_HOST: ${{ secrets.XSERVER_HOST }}
+          XSERVER_USER: ${{ secrets.XSERVER_USER }}
+          XSERVER_SSH_KEY: ${{ secrets.XSERVER_SSH_KEY }}
+          XSERVER_PATH: ${{ secrets.XSERVER_PATH }}
+          VERSION: ${{ steps.get_version.outputs.VERSION }}
+          NSIS_EXE: ${{ steps.artifacts_win.outputs.nsis_exe }}
+          PORTABLE_EXE: ${{ steps.artifacts_win.outputs.portable_exe }}
+        run: |
+          if [ -z "$XSERVER_HOST" ]; then
+            echo "Xserver secrets not configured, skipping upload"
+            exit 0
+          fi
+          mkdir -p ~/.ssh
+          echo "$XSERVER_SSH_KEY" > ~/.ssh/xserver_key
+          chmod 600 ~/.ssh/xserver_key
+
+          # Create version directory
+          ssh -o StrictHostKeyChecking=no -p 10022 -i ~/.ssh/xserver_key "$XSERVER_USER@$XSERVER_HOST" "mkdir -p $XSERVER_PATH/$VERSION"
+
+          # Upload NSIS installer
+          if [ -n "$NSIS_EXE" ]; then
+            echo "Uploading: $NSIS_EXE"
+            scp -o StrictHostKeyChecking=no -P 10022 -i ~/.ssh/xserver_key "$NSIS_EXE" "$XSERVER_USER@$XSERVER_HOST:$XSERVER_PATH/$VERSION/"
+          fi
+
+          # Upload Portable EXE
+          if [ -n "$PORTABLE_EXE" ]; then
+            echo "Uploading: $PORTABLE_EXE"
+            scp -o StrictHostKeyChecking=no -P 10022 -i ~/.ssh/xserver_key "$PORTABLE_EXE" "$XSERVER_USER@$XSERVER_HOST:$XSERVER_PATH/$VERSION/"
+          fi
+
+          rm -f ~/.ssh/xserver_key
+          echo "Upload completed!"
+
+      - name: Upload artifacts to GitHub (macOS)
+        if: runner.os == 'macOS'
         uses: actions/upload-artifact@v4
         with:
           name: FontMinify-${{ steps.get_version.outputs.VERSION }}-macOS
           path: dist/*.dmg
+          retention-days: 30
+
+      - name: Upload artifacts to GitHub (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: FontMinify-${{ steps.get_version.outputs.VERSION }}-Windows
+          path: dist/*.exe
           retention-days: 30
