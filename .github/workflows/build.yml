@@ -48,7 +48,7 @@ jobs:
         shell: bash
         env:
           CI: true
-        run: npm run dist:mac
+        run: npm run build && npx electron-builder --mac --publish=never
 
       - name: Find build artifacts
         id: artifacts
