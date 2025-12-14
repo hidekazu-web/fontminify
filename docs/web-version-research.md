@@ -253,6 +253,21 @@ const fontBuffer = exports.malloc(fontData.byteLength)
 - 98%以上のサイズ削減が可能
 - `subset-font`ライブラリは使用せず、`harfbuzzjs`を直接使用する設計に変更が必要
 
+### WOFF2出力について
+
+harfbuzzjs はサブセット化のみを行い、出力形式はTTF。WOFF2形式で出力するには、別途WOFF2エンコーダーが必要。
+
+**処理パイプライン**:
+```
+入力フォント → harfbuzzjs (サブセット化) → TTF → woff2-encoder → WOFF2
+```
+
+**利用可能なWOFF2エンコーダー**:
+- `woff2-encoder` (npm) - WASM対応、ブラウザで動作
+- `fonteditor-core` - 包括的なフォント処理ライブラリ
+
+**結論**: Web版でもWOFF2出力は可能。別途ライブラリ追加が必要だが、技術的な障壁はない。
+
 ### PoCコード
 
 検証に使用したコードは `poc/` ディレクトリに保存:
@@ -284,3 +299,4 @@ poc/
 |------|------|
 | 2024-12-14 | 初版作成 |
 | 2024-12-14 | PoC検証結果を追加。subset-fontがNode.js専用であることを発見、harfbuzzjs直接使用で解決 |
+| 2024-12-14 | WOFF2出力について追記。woff2-encoderライブラリでWOFF2出力が可能であることを確認 |

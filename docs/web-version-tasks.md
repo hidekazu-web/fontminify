@@ -8,6 +8,56 @@ Web版対応を4フェーズに分けて実装する。各フェーズは独立�
 
 ---
 
+## 実装開始前の準備
+
+### 技術的決定事項（確定）
+
+| 項目 | 決定内容 | 備考 |
+|-----|---------|------|
+| サブセット化 | harfbuzzjs (WASM直接使用) | subset-fontはNode.js専用のため不可 |
+| WOFF2圧縮 | woff2-encoder | TTF → WOFF2変換 |
+| フォント解析 | fontkit | ブラウザ対応済み |
+| 重い処理 | Web Worker | UIブロッキング回避 |
+| ファイル入出力 | File API / Blob Download | ブラウザ標準API |
+
+### 処理パイプライン（確定）
+
+```
+入力フォント (TTF/OTF/WOFF/WOFF2)
+    ↓
+fontkit (フォント解析・メタデータ取得)
+    ↓
+harfbuzzjs WASM (サブセット化)
+    ↓
+TTF (サブセット済み)
+    ↓
+woff2-encoder (WOFF2出力時のみ)
+    ↓
+Blob Download (ファイル保存)
+```
+
+### 事前準備タスク
+
+実装開始前に以下を完了させる：
+
+- [ ] **0.1** woff2-encoderライブラリのインストール
+  ```bash
+  npm install woff2-encoder
+  ```
+
+- [ ] **0.2** harfbuzzjs WASMファイルの配置確認
+  - `node_modules/harfbuzzjs/hb-subset.wasm` が存在することを確認
+  - Viteでの読み込み設定を確認
+
+### 参照ドキュメント
+
+- 技術調査: [web-version-research.md](./web-version-research.md) - PoC検証結果
+- 設計書: [web-version-design.md](./web-version-design.md) - アーキテクチャ詳細
+- 仕様書: [web-version-spec.md](./web-version-spec.md) - 機能要件
+- PoCコード: `poc/main.ts` - harfbuzzjs実装例
+
+---
+
 ## フェーズ1: 基盤構築
 
 **目標**: Web版のビルド環境とWeb Worker基盤を構築する
@@ -46,15 +96,20 @@ Web版対応を4フェーズに分けて実装する。各フェーズは独立�
   - fontkitのUint8Array入力対応を確認
 
 - [ ] **1.2.2** `src/lib/fontSubsetter.ts` を作成
-  - `src/main/services/fontSubsetter.ts` をベースに移植
-  - `fs.readFileSync` → `Uint8Array` 引数に変更
+  - harfbuzzjs WASMを直接使用（subset-fontはNode.js専用のため使用不可）
+  - `poc/main.ts` の実装をベースに移植
   - AbortSignalによるキャンセル対応を追加
   - プログレスコールバックの型を統一
 
-- [ ] **1.2.3** ライブラリのブラウザ動作確認
-  - subset-fontのWASM読み込み確認
+- [ ] **1.2.3** `src/lib/woff2Encoder.ts` を作成
+  - woff2-encoderライブラリを使用
+  - TTF → WOFF2 変換処理を実装
+  - fontSubsetterと統合
+
+- [ ] **1.2.4** ライブラリのブラウザ動作確認
+  - harfbuzzjs WASMの読み込み確認（PoC検証済み）
+  - woff2-encoderの動作確認
   - fontkitのArrayBuffer対応確認
-  - 依存関係のbrowserifyが必要か確認
 
 ### 1.3 Web Worker実装
 
@@ -367,13 +422,15 @@ graph TD
 
 | フェーズ | タスク数 | 概算工数 |
 |---------|---------|---------|
-| フェーズ1 | 12 | 2-3日 |
+| 事前準備 | 2 | 0.5日 |
+| フェーズ1 | 14 | 2-3日 |
 | フェーズ2 | 17 | 3-4日 |
 | フェーズ3 | 13 | 2-3日 |
 | フェーズ4 | 9 | 1-2日 |
-| **合計** | **51** | **8-12日** |
+| **合計** | **55** | **8-12日** |
 
 ※ 既存コードの流用度が高いため、比較的短期間での実装が可能
+※ PoCで検証済みのため、技術的リスクは低い
 
 ---
 
@@ -381,17 +438,19 @@ graph TD
 
 最小限の動作可能な製品（MVP）に必要なタスク:
 
-1. **1.1.1** - プロジェクト構成
-2. **1.1.2** - Vite設定
-3. **1.2.1** - fontAnalyzer移植
-4. **1.2.2** - fontSubsetter移植
-5. **1.3.1** - Worker型定義
-6. **1.3.2** - Worker実装
-7. **1.3.3** - Worker APIブリッジ
-8. **2.1.1** - ファイル入力
-9. **2.2.1** - ダウンロード処理
-10. **2.3.1-3** - 状態管理
-11. **2.4.1-5** - UIコンポーネント
+1. **0.1** - woff2-encoderインストール
+2. **1.1.1** - プロジェクト構成
+3. **1.1.2** - Vite設定
+4. **1.2.1** - fontAnalyzer移植
+5. **1.2.2** - fontSubsetter移植（harfbuzzjs直接使用）
+6. **1.2.3** - woff2Encoder実装
+7. **1.3.1** - Worker型定義
+8. **1.3.2** - Worker実装
+9. **1.3.3** - Worker APIブリッジ
+10. **2.1.1** - ファイル入力
+11. **2.2.1** - ダウンロード処理
+12. **2.3.1-3** - 状態管理
+13. **2.4.1-5** - UIコンポーネント
 
 MVPは約5-7日で達成可能。
 
@@ -402,3 +461,4 @@ MVPは約5-7日で達成可能。
 | 日付 | 内容 |
 |------|------|
 | 2024-12-14 | 初版作成 |
+| 2024-12-14 | PoC検証結果を反映。subset-font→harfbuzzjs直接使用に変更、woff2-encoder追加、実装開始前の準備セクション追加 |

@@ -833,6 +833,89 @@ export async function subsetFont(
 
 **参考**: PoCコード `poc/main.ts` に完全な実装例あり
 
+### 7.3 WOFF2エンコーディング
+
+**重要**: harfbuzzjs はTTF形式のみ出力。WOFF2形式で出力するには、別途WOFF2エンコーダーが必要。
+
+#### 処理パイプライン
+
+```
+入力フォント (TTF/OTF/WOFF/WOFF2)
+    ↓
+harfbuzzjs (サブセット化)
+    ↓
+TTF (サブセット済み)
+    ↓
+woff2-encoder (圧縮) ← WOFF2出力時のみ
+    ↓
+WOFF2 (最終出力)
+```
+
+#### 使用ライブラリ
+
+| ライブラリ | npm | ブラウザ対応 | 特徴 |
+|-----------|-----|------------|------|
+| woff2-encoder | ✅ | ✅ WASM | TypeScript対応、シンプルAPI |
+| fonteditor-core | ✅ | ✅ | フォント変換全般をサポート |
+
+#### 実装例
+
+```typescript
+// src/lib/woff2Encoder.ts (Web版)
+
+import { compress } from 'woff2-encoder'
+
+export async function encodeToWoff2(ttfData: Uint8Array): Promise<Uint8Array> {
+  // woff2-encoder を使用してTTF→WOFF2変換
+  const woff2Data = await compress(ttfData)
+  return new Uint8Array(woff2Data)
+}
+```
+
+#### fontSubsetter統合
+
+```typescript
+// src/lib/fontSubsetter.ts に追加
+
+import { encodeToWoff2 } from './woff2Encoder'
+
+export async function subsetFont(
+  data: Uint8Array,
+  text: string,
+  options: SubsetOptions,
+  progressCallback?: ProgressCallback,
+  abortSignal?: AbortSignal
+): Promise<SubsetResult> {
+  // 1. harfbuzzjs でサブセット化（TTF出力）
+  const ttfData = await subsetWithHarfbuzz(data, text)
+
+  // 2. 出力形式に応じて変換
+  let outputData: Uint8Array
+  if (options.outputFormat === 'woff2') {
+    progressCallback?.({ stage: 'compressing', progress: 80, message: 'WOFF2圧縮中...' })
+    outputData = await encodeToWoff2(ttfData)
+  } else {
+    outputData = ttfData
+  }
+
+  return {
+    data: outputData,
+    originalSize: data.length,
+    outputSize: outputData.length,
+    fileName: generateOutputFileName(options.fileName, options.outputFormat)
+  }
+}
+```
+
+#### WOFF2圧縮効果
+
+| フォント | TTF（サブセット後） | WOFF2 | 追加削減率 |
+|---------|-------------------|-------|----------|
+| NotoSansJP | 150KB | 45KB | -70% |
+| SourceHanSans | 200KB | 60KB | -70% |
+
+**結論**: WOFF2エンコーダーを追加することで、Web版でもWOFF2出力が可能。サブセット化 + WOFF2圧縮の組み合わせで最大95%以上のサイズ削減が実現できる。
+
 ---
 
 ## 8. デプロイ設計
@@ -847,7 +930,8 @@ dist-web/
 │   ├── index-[hash].css     # スタイル
 │   └── font.worker-[hash].js # Web Worker
 └── wasm/
-    └── harfbuzzjs.wasm       # WASM（~750KB）
+    ├── hb-subset.wasm        # harfbuzzjs（~580KB）- サブセット化
+    └── woff2_enc.wasm        # woff2-encoder（~300KB）- WOFF2圧縮
 ```
 
 ### 8.2 ホスティング設定例（Vercel）
@@ -1022,3 +1106,4 @@ describe('FontWorker', () => {
 |------|------|
 | 2024-12-14 | 初版作成 |
 | 2024-12-14 | PoC検証結果を反映。subset-font→harfbuzzjs直接使用に設計変更 |
+| 2024-12-14 | WOFF2エンコーディング設計を追加（セクション7.3）。woff2-encoderライブラリ使用 |
