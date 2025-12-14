@@ -82,7 +82,8 @@ export async function analyzeFont(filePath: string): Promise<FontAnalysis> {
 
     try {
       const fontkit = await loadFontkit();
-      const fontOrCollection = fontkit.openSync(fontBuffer);
+      // fontkit.openSync はファイルパス用、Buffer には create を使用
+      const fontOrCollection = fontkit.create(fontBuffer);
       const font = 'fonts' in fontOrCollection ? fontOrCollection.fonts[0] : fontOrCollection;
 
       fontFamily = font.familyName || font.fullName || fontFamily;

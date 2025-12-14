@@ -75,6 +75,8 @@ export function useFontProcessing(options: UseFontProcessingOptions = {}): UseFo
         compressionLevel: subsetOptions.compressionLevel,
         removeHinting: subsetOptions.removeHinting,
         desubroutinize: subsetOptions.desubroutinize,
+        pinVariationAxes: subsetOptions.pinVariationAxes,
+        variationAxes: subsetOptions.variationAxes,
       }),
       filePath
     );

@@ -305,9 +305,12 @@ export function createUIActions(set: SetState, get: GetState): Pick<FontStoreAct
         defaultValues[axis.tag] = axis.default;
       });
       set({ variationAxesValues: defaultValues });
-      if (get().pinVariationAxes) {
-        get().updateSubsetOptions({ variationAxes: defaultValues });
-      }
+      // pinVariationAxesとvariationAxesの両方をsubsetOptionsに設定
+      const pin = get().pinVariationAxes;
+      get().updateSubsetOptions({
+        pinVariationAxes: pin,
+        variationAxes: pin ? defaultValues : undefined,
+      });
     },
   };
 }
