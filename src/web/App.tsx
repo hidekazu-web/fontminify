@@ -1,6 +1,7 @@
 import React from 'react'
 import { FileDropZone } from './components/FileDropZone'
 import { ErrorContainer } from './components/ErrorToast'
+import { VariableAxisControl } from './components/VariableAxisControl'
 import { useFontStore } from './stores/fontStore'
 import { CHARACTER_PRESETS } from '../shared/presets'
 import { OutputFormat } from '../shared/types'
@@ -13,9 +14,13 @@ export function App() {
     selectedPreset,
     customCharacters,
     outputFormat,
+    variationAxesValues,
+    pinVariationAxes,
     setSelectedPreset,
     setCustomCharacters,
     setOutputFormat,
+    setVariationAxesValues,
+    setPinVariationAxes,
     processFont,
     errors,
     removeError,
@@ -79,6 +84,19 @@ export function App() {
                 </div>
               )}
             </dl>
+
+            {/* バリアブルフォント軸設定 */}
+            {firstEntry.analysis.isVariableFont && firstEntry.analysis.axes && (
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <VariableAxisControl
+                  axes={firstEntry.analysis.axes}
+                  values={variationAxesValues}
+                  onChange={setVariationAxesValues}
+                  pinAxes={pinVariationAxes}
+                  onPinAxesChange={setPinVariationAxes}
+                />
+              </div>
+            )}
           </div>
         )}
 

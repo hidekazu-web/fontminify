@@ -50,10 +50,19 @@ interface HarfbuzzExports {
   hb_subset_input_unicode_set: (input: number) => number
   hb_set_add: (set: number, codepoint: number) => void
   hb_subset_or_fail: (face: number, input: number) => number
+  // 軸固定用関数
+  hb_subset_input_pin_axis_location: (input: number, face: number, axisTag: number, axisValue: number) => number
 }
 
 let wasmExports: HarfbuzzExports | null = null
 let wasmLoading: Promise<void> | null = null
+
+/**
+ * 軸タグ文字列を数値に変換（HarfBuzz形式）
+ */
+function HB_TAG(str: string): number {
+  return str.split('').reduce((a, ch) => (a << 8) + ch.charCodeAt(0), 0)
+}
 
 /**
  * harfbuzzjs WASMを初期化
@@ -94,7 +103,12 @@ async function initWasm(): Promise<void> {
 /**
  * harfbuzzjs WASMを使用してフォントをサブセット化（TTF出力）
  */
-function subsetWithHarfbuzz(fontData: Uint8Array, text: string): Uint8Array {
+function subsetWithHarfbuzz(
+  fontData: Uint8Array,
+  text: string,
+  variationAxes?: Record<string, number>,
+  pinVariationAxes?: boolean
+): Uint8Array {
   if (!wasmExports) {
     throw new Error('WASM not initialized')
   }
@@ -132,6 +146,20 @@ function subsetWithHarfbuzz(fontData: Uint8Array, text: string): Uint8Array {
     const codePoint = char.codePointAt(0)
     if (codePoint !== undefined) {
       exports.hb_set_add(unicodeSet, codePoint)
+    }
+  }
+
+  // 軸固定オプションの処理
+  if (pinVariationAxes && variationAxes && Object.keys(variationAxes).length > 0) {
+    console.log('Pinning variation axes:', variationAxes)
+    for (const [axisTag, axisValue] of Object.entries(variationAxes)) {
+      const tag = HB_TAG(axisTag)
+      const result = exports.hb_subset_input_pin_axis_location(input, face, tag, axisValue)
+      if (!result) {
+        console.warn(`Failed to pin axis ${axisTag} to ${axisValue}`)
+      } else {
+        console.log(`Pinned axis ${axisTag} to ${axisValue}`)
+      }
     }
   }
 
@@ -219,7 +247,16 @@ export async function subsetFont(
     })
 
     console.log('Starting subset with', options.text.length, 'characters')
-    const ttfData = subsetWithHarfbuzz(data, options.text)
+    console.log('Variation axes options:', {
+      pinVariationAxes: options.pinVariationAxes,
+      variationAxes: options.variationAxes
+    })
+    const ttfData = subsetWithHarfbuzz(
+      data,
+      options.text,
+      options.variationAxes,
+      options.pinVariationAxes
+    )
     console.log('Subset completed:', ttfData.length, 'bytes')
 
     if (abortSignal?.aborted) {
