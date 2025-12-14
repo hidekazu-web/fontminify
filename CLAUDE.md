@@ -76,7 +76,16 @@ const fontInfo = await window.api.analyzeFont(filePath);
 - タスク詳細: docs/task-list.md を参照
 - 機能仕様: docs/specs.md を参照（詳細仕様が必要な場合）
 
-## タスク管理ルール
+### Web版対応ドキュメント
+
+- 技術調査: docs/web-version-research.md
+- 仕様書: docs/web-version-spec.md
+- 設計書: docs/web-version-design.md
+- タスク: docs/web-version-tasks.md
+
+## タスク管理ルール【絶対遵守】
+
+**CRITICAL: タスク進捗・課題発見・課題解決時は、必ず該当ドキュメントを更新すること**
 
 ### タスク進捗時（IMPORTANT: 必ず実行）
 1. **開始時**: TodoWriteで`in_progress`に変更
@@ -85,12 +94,20 @@ const fontInfo = await window.api.analyzeFont(filePath);
    - docs/progress.md の該当タスクにチェック
    - docs/progress.md の「更新履歴」に記録
    - docs/task-list.md の状態を「完了」に更新
+   - Web版関連: docs/web-version-tasks.md も更新
 
 ### 課題発見時（IMPORTANT: 必ず実行）
 1. docs/issues.md に課題を追加（テンプレート使用）
 2. 優先度を設定（P0: 緊急 / P1: 重要 / P2: 低）
 3. 統計セクションを更新
 4. 関連タスクがあれば docs/progress.md にも記載
+5. Web版関連: docs/web-version-research.md に技術的発見を記録
+
+### 課題解決時（IMPORTANT: 必ず実行）
+1. docs/issues.md の該当課題を「解決済み」に更新
+2. 解決方法と日付を記録
+3. 関連ドキュメントの更新履歴に追記
+4. 設計変更があれば docs/web-version-design.md を更新
 
 ## 重要事項
 

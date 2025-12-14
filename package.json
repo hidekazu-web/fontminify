@@ -31,7 +31,8 @@
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "test": "vitest",
     "test:unit": "vitest run --reporter=verbose",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "poc": "vite --config poc/vite.config.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.0.5",

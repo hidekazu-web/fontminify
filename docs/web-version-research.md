@@ -202,6 +202,72 @@ Node.jsサーバーでフォント処理を実行。
 
 ---
 
+## PoC検証結果（2024-12-14）
+
+### 発見した課題
+
+**subset-fontライブラリはNode.js専用**
+
+調査時点では「harfbuzzjs（WebAssembly）で動作」と記載していたが、実際にブラウザで動作確認したところ、`subset-font`ライブラリ自体が`require('fs')`に依存しており、そのままではブラウザで動作しないことが判明した。
+
+```javascript
+// subset-font/index.js（抜粋）
+const { readFile } = require('fs').promises;  // ← Node.js専用
+```
+
+### 解決策
+
+**harfbuzzjs (WASM) を直接使用する**
+
+`subset-font`が内部で使用している`harfbuzzjs`のWASMファイル（`hb-subset.wasm`）を直接ブラウザから呼び出すことで、サブセット化処理が可能。
+
+```typescript
+// ブラウザでのWASM読み込み
+const response = await fetch('harfbuzzjs/hb-subset.wasm')
+const wasmBuffer = await response.arrayBuffer()
+const { instance } = await WebAssembly.instantiate(wasmBuffer)
+const exports = instance.exports
+
+// サブセット化処理
+const fontBuffer = exports.malloc(fontData.byteLength)
+// ... harfbuzz API を直接呼び出し
+```
+
+### テスト結果
+
+| 項目 | 結果 |
+|-----|------|
+| テストフォント | NotoSans-Regular.ttf |
+| 元サイズ | 543.2 KB |
+| サブセット後 | 10.3 KB |
+| **削減率** | **98.1%** |
+| 処理時間 | 0.01秒 |
+| WASM サイズ | 580.3 KB |
+
+### 結論
+
+**Web版対応は技術的に実現可能**（実証済み）
+
+- harfbuzzjs (WASM) はブラウザで正常に動作する
+- 処理速度は非常に高速（0.01秒）
+- 98%以上のサイズ削減が可能
+- `subset-font`ライブラリは使用せず、`harfbuzzjs`を直接使用する設計に変更が必要
+
+### PoCコード
+
+検証に使用したコードは `poc/` ディレクトリに保存:
+
+```
+poc/
+├── index.html      # テストUI
+├── main.ts         # harfbuzzjs直接呼び出し実装
+└── vite.config.ts  # Vite設定
+```
+
+実行方法: `npm run poc`
+
+---
+
 ## 参考リンク
 
 - [subset-font - npm](https://www.npmjs.com/package/subset-font)
@@ -217,3 +283,4 @@ Node.jsサーバーでフォント処理を実行。
 | 日付 | 内容 |
 |------|------|
 | 2024-12-14 | 初版作成 |
+| 2024-12-14 | PoC検証結果を追加。subset-fontがNode.js専用であることを発見、harfbuzzjs直接使用で解決 |
